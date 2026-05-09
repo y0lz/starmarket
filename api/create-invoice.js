@@ -1,8 +1,6 @@
 // /root/mini-app/api/create-invoice.js
 // Создание инвойса для оплаты через Telegram Stars (XTR)
 
-import fetch from 'node-fetch';
-
 const BOT_TOKEN = process.env.BOT_TOKEN || "8325504889:AAHry7Yi4FNjgd0WG_ANcJeeZQpBmwFZhr8";
 const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
@@ -35,7 +33,8 @@ export default async function handler(req, res) {
       }]
     };
 
-    const response = await fetch(`${API_URL}/createInvoiceLink`, {
+    // Для Vercel Edge Functions используем globalThis.fetch
+    const response = await globalThis.fetch(`${API_URL}/createInvoiceLink`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

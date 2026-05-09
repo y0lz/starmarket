@@ -3,105 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Профиль — StarMarket</title>
+    <title>Кабинет продавца — StarMarket</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
     <style>
         :root {
             --bg: #0d1117;
             --card: #161b22;
             --primary: #0088cc;
             --accent: #ff9d00;
+            --success: #2ea043;
             --text: #e6edf3;
+            --text-muted: #8b949e;
             --border: #30363d;
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
-            padding: 16px;
+            min-height: 100vh;
         }
 
         .header {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 24px;
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 10;
         }
 
         .back-btn {
-            background: var(--card);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 8px 12px;
-            border-radius: 8px;
+            font-size: 20px;
             cursor: pointer;
-            font-size: 14px;
+            color: var(--text-muted);
+            padding: 8px;
         }
 
         .header h1 {
-            font-size: 24px;
+            font-size: 18px;
+            flex: 1;
+        }
+
+        .profile-section {
+            padding: 16px;
         }
 
         .profile-card {
             background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 20px;
             margin-bottom: 16px;
         }
 
-        .profile-stats {
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .profile-info h2 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .profile-info .nickname {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-free {
+            background: rgba(88, 166, 255, 0.15);
+            color: #58a6ff;
+        }
+
+        .badge-premium {
+            background: rgba(255, 215, 0, 0.15);
+            color: #ffd700;
+        }
+
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 12px;
-            margin-top: 16px;
+            margin-top: 12px;
         }
 
         .stat-item {
             text-align: center;
-            padding: 12px;
-            background: var(--bg);
-            border-radius: 8px;
         }
 
         .stat-value {
             font-size: 20px;
-            font-weight: bold;
-            color: var(--primary);
+            font-weight: 700;
+            color: var(--accent);
         }
 
         .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .bio-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 12px;
+            line-height: 1.5;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 16px 12px;
+            color: var(--text);
+        }
+
+        .products-list {
+            padding: 0 16px;
+        }
+
+        .product-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .product-img {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .product-title {
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-meta {
             font-size: 12px;
-            color: #8b949e;
-            margin-top: 4px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .product-price {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .product-status {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+
+        .status-active {
+            background: rgba(46, 160, 67, 0.15);
+            color: #2ea043;
+        }
+
+        .status-inactive {
+            background: rgba(248, 81, 73, 0.15);
+            color: #f85149;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 16px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .action-btn {
+            display: block;
+            width: calc(100% - 32px);
+            margin: 16px auto;
+            padding: 14px;
+            background: linear-gradient(135deg, #0088cc, #00b4ff);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .edit-form {
+            padding: 16px;
         }
 
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         .form-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
             display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 500;
         }
 
         .form-input {
             width: 100%;
             padding: 12px;
-            background: var(--bg);
+            background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 10px;
             color: var(--text);
-            font-size: 15px;
+            font-size: 14px;
         }
 
         .form-input:focus {
@@ -109,243 +269,349 @@
             border-color: var(--primary);
         }
 
-        textarea.form-input {
-            min-height: 100px;
-            resize: vertical;
-        }
-
         .save-btn {
             width: 100%;
-            padding: 14px;
-            background: var(--primary);
+            padding: 13px;
+            background: var(--success);
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
+            margin-top: 8px;
         }
 
-        .save-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .save-btn:hover {
+            opacity: 0.9;
         }
 
-        .premium-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #ffd700, #ffed4e);
-            color: #000;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-left: 8px;
-        }
-
-        .free-badge {
-            display: inline-block;
-            background: var(--border);
-            color: var(--text);
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-left: 8px;
-        }
-
-        .error-msg {
-            background: #ff4444;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            display: none;
-        }
-
-        .success-msg {
-            background: #00aa00;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            display: none;
-        }
-
-        .char-counter {
-            text-align: right;
-            font-size: 12px;
-            color: #8b949e;
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-muted);
             margin-top: 4px;
+        }
+
+        .rating-stars {
+            color: #ffd700;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .tab-bar {
+            display: flex;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 0 16px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <button class="back-btn" onclick="goBack()">← Назад</button>
-        <h1>👤 Профиль</h1>
+        <div class="back-btn" onclick="goBack()">←</div>
+        <h1>⭐ Кабинет продавца</h1>
     </div>
 
-    <div id="errorMsg" class="error-msg"></div>
-    <div id="successMsg" class="success-msg"></div>
+    <div id="loading" class="loading">⏳ Загрузка...</div>
+    <div id="app" style="display: none;">
 
-    <div class="profile-card">
-        <h2>Статистика продавца</h2>
-        <div class="profile-stats">
-            <div class="stat-item">
-                <div class="stat-value" id="activeProducts">0</div>
-                <div class="stat-label">Активных товаров</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="totalSales">0</div>
-                <div class="stat-label">Продаж</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="sellerRating">—</div>
-                <div class="stat-label">Рейтинг</div>
+        <!-- Профиль -->
+        <div class="profile-section">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="avatar" id="avatar"></div>
+                    <div class="profile-info">
+                        <h2 id="userName">—</h2>
+                        <div class="nickname" id="userNickname">@не установлен</div>
+                    </div>
+                    <div class="badge badge-free" id="badgeStatus">🆓 Free</div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="statProducts">0</div>
+                        <div class="stat-label">Товаров</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statSales">0</div>
+                        <div class="stat-label">Продаж</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statRating">—</div>
+                        <div class="stat-label">Рейтинг</div>
+                    </div>
+                </div>
+
+                <div id="ratingRow" class="rating" style="display:none; margin-top: 8px;">
+                    <div class="rating-stars" id="ratingStars"></div>
+                    <span id="ratingCount">(0 оценок)</span>
+                </div>
+
+                <div class="bio-text" id="bioText">Описание не заполнено</div>
+
+                <button class="save-btn" onclick="toggleEdit()" style="margin-top: 16px; background: var(--card); border: 1px solid var(--border);">
+                    ✏️ Редактировать профиль
+                </button>
             </div>
         </div>
-    </div>
 
-    <div class="profile-card">
-        <h2>
-            Настройки профиля
-            <span id="statusBadge"></span>
-        </h2>
-        
-        <form id="profileForm">
+        <!-- Редактирование профиля -->
+        <div id="editForm" class="edit-form" style="display: none;">
             <div class="form-group">
-                <label class="form-label">Никнейм продавца *</label>
-                <input type="text" id="nickname" class="form-input" placeholder="Ваш уникальный никнейм" maxlength="30" required>
-                <div class="char-counter"><span id="nicknameCounter">0</span>/30</div>
+                <label class="form-label">Никнейм</label>
+                <input type="text" class="form-input" id="inputNickname" placeholder="Ваш никнейм">
             </div>
-
             <div class="form-group">
-                <label class="form-label">Описание профиля</label>
-                <textarea id="bio" class="form-input" placeholder="Расскажите о себе как о продавце..." maxlength="500"></textarea>
-                <div class="char-counter"><span id="bioCounter">0</span>/500</div>
+                <label class="form-label">О себе</label>
+                <input type="text" class="form-input" id="inputBio" placeholder="Расскажите о себе">
             </div>
+            <button class="save-btn" onclick="saveProfile()">💾 Сохранить</button>
+        </div>
 
-            <button type="submit" class="save-btn" id="saveBtn">Сохранить</button>
-        </form>
+        <!-- Табы: Товары / Заказы -->
+        <div class="tab-bar">
+            <div class="tab active" onclick="switchTab('products')">📦 Мои товары</div>
+            <div class="tab" onclick="switchTab('orders')">📊 Заказы</div>
+        </div>
+
+        <div id="tab-products" class="tab-content active">
+            <div class="section-title">Активные товары</div>
+            <div class="products-list" id="productsList"></div>
+            <div id="emptyProducts" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">📦</div>
+                <div>У вас пока нет товаров</div>
+            </div>
+        </div>
+
+        <div id="tab-orders" class="tab-content">
+            <div class="section-title">Последние заказы</div>
+            <div id="ordersList">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <div>Заказов пока нет</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="action-btn" onclick="goBack()">🛍️ Открыть магазин</button>
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.BackButton.show();
-        tg.BackButton.onClick(() => goBack());
+        let currentUser = null;
+        let userProfile = null;
+        let products = [];
 
-        const userId = tg.initDataUnsafe?.user?.id || 123456;
-        const API_URL = window.location.origin;
+        const API_BASE = 'https://mini-app-pi-ivory.vercel.app';
 
-        function goBack() {
-            window.location.href = '/';
+        const BOT_TOKEN = '8325504889:AAHry7Yi4FNjgd0WG_ANcJeeZQpBmwFZhr8';
+
+function verifyTelegramData(initDataUnsafe, botToken) {
+    const { hash, ...data } = initDataUnsafe;
+    if (!hash) return false;
+
+    const arr = Object.keys(data)
+        .sort()
+        .map(k => `${k}=${data[k]}`)
+        .join('\n');
+
+    const secret = CryptoJS.HmacSHA256(botToken, 'WebAppData');
+    const calculatedHash = CryptoJS.HmacSHA256(arr, secret).toString(CryptoJS.enc.Hex);
+
+    return calculatedHash === hash;
+}
+
+async function init() {
+    const tg = window.Telegram?.WebApp;
+
+    if (tg && tg.initData && tg.initDataUnsafe?.user) {
+        // Verify hash from Telegram
+        if (verifyTelegramData(tg.initDataUnsafe, BOT_TOKEN)) {
+            currentUser = tg.initDataUnsafe.user;
         }
+    }
 
-        function showError(msg) {
-            const el = document.getElementById('errorMsg');
-            el.textContent = msg;
-            el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 5000);
-        }
+    if (!currentUser || !currentUser.id) {
+        document.getElementById('loading').innerHTML = '⚠️ Не удалось определить пользователя. Попробуйте нажать кнопку в боте ещё раз.';
+        return;
+    }
 
-        function showSuccess(msg) {
-            const el = document.getElementById('successMsg');
-            el.textContent = msg;
-            el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 3000);
-        }
+    loadData();
+}
 
-        // Счетчики символов
-        document.getElementById('nickname').addEventListener('input', (e) => {
-            document.getElementById('nicknameCounter').textContent = e.target.value.length;
-        });
-
-        document.getElementById('bio').addEventListener('input', (e) => {
-            document.getElementById('bioCounter').textContent = e.target.value.length;
-        });
-
-        // Загрузка профиля
-        async function loadProfile() {
+        async function loadData() {
+            // Load profile from API
             try {
-                const response = await fetch(`${API_URL}/api/profile?userId=${userId}`);
-                const data = await response.json();
-
-                if (response.ok && data.user) {
-                    const user = data.user;
-                    
-                    document.getElementById('activeProducts').textContent = user.active_products_count;
-                    document.getElementById('totalSales').textContent = user.total_sales;
-                    document.getElementById('sellerRating').textContent = user.seller_rating || '—';
-                    
-                    if (user.nickname) {
-                        document.getElementById('nickname').value = user.nickname;
-                        document.getElementById('nicknameCounter').textContent = user.nickname.length;
-                    }
-                    
-                    if (user.bio) {
-                        document.getElementById('bio').value = user.bio;
-                        document.getElementById('bioCounter').textContent = user.bio.length;
-                    }
-
-                    const badge = user.is_premium 
-                        ? '<span class="premium-badge">⭐ Premium</span>'
-                        : '<span class="free-badge">🆓 Free (до 10 товаров)</span>';
-                    document.getElementById('statusBadge').innerHTML = badge;
+                const res = await fetch(`${API_BASE}/api/profile?userId=${currentUser.id}`);
+                const data = await res.json();
+                if (data.user) {
+                    userProfile = data.user;
                 }
-            } catch (e) {
-                console.error('Load profile error:', e);
-                showError('Ошибка загрузки профиля');
+            } catch(e) {
+                console.error('Profile load error:', e);
+            }
+
+            // Load products
+            try {
+                const res = await fetch(`${API_BASE}/api/seller?userId=${currentUser.id}`);
+                const data = await res.json();
+                if (data.products) {
+                    products = data.products;
+                }
+            } catch(e) {
+                console.error('Products load error:', e);
+            }
+
+            renderUI();
+        }
+
+        function renderUI() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+
+            // Avatar
+            const name = currentUser.first_name || currentUser.username || '?';
+            document.getElementById('avatar').textContent = name.charAt(0).toUpperCase();
+
+            // Profile info
+            document.getElementById('userName').textContent = name;
+            document.getElementById('userNickname').textContent = '@' + (currentUser.username || 'не установлен');
+
+            if (userProfile) {
+                if (userProfile.nickname) {
+                    document.getElementById('userNickname').textContent = '@' + userProfile.nickname;
+                }
+                document.getElementById('statProducts').textContent = userProfile.active_products_count || 0;
+                document.getElementById('statSales').textContent = userProfile.total_sales || 0;
+                document.getElementById('statRating').textContent = userProfile.seller_rating || '—';
+                document.getElementById('bioText').textContent = userProfile.bio || 'Описание не заполнено';
+
+                if (userProfile.is_premium) {
+                    document.getElementById('badgeStatus').className = 'badge badge-premium';
+                    document.getElementById('badgeStatus').textContent = '⭐ Premium';
+                }
+
+                // Rating
+                if (userProfile.seller_rating) {
+                    const stars = '★'.repeat(Math.round(userProfile.seller_rating));
+                    document.getElementById('ratingStars').textContent = stars;
+                    document.getElementById('ratingRow').style.display = 'flex';
+                }
+            }
+
+            // Products
+            const activeProducts = products.filter(p => p.is_active);
+            const listEl = document.getElementById('productsList');
+
+            if (activeProducts.length === 0) {
+                document.getElementById('emptyProducts').style.display = 'block';
+            } else {
+                listEl.innerHTML = activeProducts.map(p => `
+                    <div class="product-item">
+                        <img class="product-img" src="${p.image || 'https://via.placeholder.com/48/0088cc/ffffff?text=📦'}" alt="">
+                        <div class="product-info">
+                            <div class="product-title">${p.title}</div>
+                            <div class="product-meta">${p.game || ''} · Продано: ${p.sales_count || 0}</div>
+                        </div>
+                        <div>
+                            <div class="product-price">⭐ ${p.price_stars}</div>
+                            <div class="product-status status-active">Активен</div>
+                        </div>
+                    </div>
+                `).join('');
             }
         }
 
-        // Сохранение профиля
-        document.getElementById('profileForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const nickname = document.getElementById('nickname').value.trim();
-            const bio = document.getElementById('bio').value.trim();
-
-            if (!nickname) {
-                showError('Введите никнейм');
-                return;
+        function toggleEdit() {
+            const form = document.getElementById('editForm');
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                if (userProfile) {
+                    document.getElementById('inputNickname').value = userProfile.nickname || '';
+                    document.getElementById('inputBio').value = userProfile.bio || '';
+                }
+            } else {
+                form.style.display = 'none';
             }
+        }
 
-            if (nickname.length < 3) {
-                showError('Никнейм должен быть минимум 3 символа');
-                return;
-            }
-
-            const saveBtn = document.getElementById('saveBtn');
-            saveBtn.disabled = true;
-            saveBtn.textContent = 'Сохранение...';
+        async function saveProfile() {
+            const nickname = document.getElementById('inputNickname').value.trim();
+            const bio = document.getElementById('inputBio').value.trim();
 
             try {
-                const response = await fetch(`${API_URL}/api/profile`, {
+                const res = await fetch(`${API_BASE}/api/profile`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId, nickname, bio })
+                    body: JSON.stringify({
+                        userId: currentUser.id,
+                        nickname: nickname,
+                        bio: bio
+                    })
                 });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    showSuccess('✅ Профиль сохранен!');
-                    setTimeout(() => goBack(), 1500);
-                } else {
-                    showError(data.error === 'Nickname already taken' 
-                        ? 'Этот никнейм уже занят' 
-                        : 'Ошибка сохранения');
+                const data = await res.json();
+                if (data.success) {
+                    userProfile = { ...userProfile, nickname, bio };
+                    document.getElementById('editForm').style.display = 'none';
+                    renderUI();
+                    if (window.Telegram && Telegram.WebApp) {
+                        Telegram.WebApp.showAlert('✅ Профиль сохранён!');
+                    }
                 }
-            } catch (e) {
+            } catch(e) {
                 console.error('Save error:', e);
-                showError('Ошибка сохранения');
-            } finally {
-                saveBtn.disabled = false;
-                saveBtn.textContent = 'Сохранить';
+                if (window.Telegram && Telegram.WebApp) {
+                    Telegram.WebApp.showAlert('❌ Ошибка сохранения');
+                }
             }
-        });
+        }
 
-        loadProfile();
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+        }
+
+        function goBack() {
+            if (window.Telegram && Telegram.WebApp) {
+                Telegram.WebApp.close();
+            } else {
+                window.location.href = '/';
+            }
+        }
+
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>

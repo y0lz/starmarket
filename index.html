@@ -338,6 +338,7 @@
                 <div class="user-info" id="userInfo">
                     <span id="userName"></span>
                     <img id="userAvatar" class="user-avatar" src="" alt="">
+                    <button onclick="goToProfile()" style="background:var(--primary);color:white;border:none;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;">🏠 Кабинет</button>
                 </div>
             </div>
             
@@ -587,6 +588,16 @@
             document.getElementById('app').style.display = 'none';
             document.getElementById('errorBlock').style.display = 'block';
             document.getElementById('errorDetails').textContent = msg;
+        }
+
+        function goToProfile() {
+            const tg = window.Telegram?.WebApp;
+            const baseUrl = 'https://mini-app-pi-ivory.vercel.app/profile.html';
+            if (tg) {
+                tg.openTelegramLink(baseUrl);
+            } else {
+                window.location.href = baseUrl;
+            }
         }
 
         async function loadProducts() {

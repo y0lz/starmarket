@@ -1,10 +1,11 @@
 const TelegramBot = require('node-telegram-bot-api');
 
 // Токен бота @PodiumTaskBot
-const token = process.env.TELEGRAM_BOT_TOKEN || '8325504889:YOUR_BOT_TOKEN';
+const token = process.env.TELEGRAM_BOT_TOKEN || '8325504889:AAHry7Yi4FNjgd0WG_ANcJeeZQpBmwFZhr8';
 const bot = new TelegramBot(token, { polling: true });
 
-const MINI_APP_URL = 'https://mini-app-pi-ivory.vercel.app';
+// Vercel deployment URL
+const MINI_APP_URL = process.env.MINI_APP_URL || 'https://mini-app-pi-ivory.vercel.app';
 
 // Команда /start
 bot.onText(/\/start/, (msg) => {
@@ -22,7 +23,7 @@ bot.onText(/\/start/, (msg) => {
           }
         ],
         [
-          { text: '👤 Профиль', callback_data: 'profile' },
+          { text: '🏠 Мой кабинет', web_app: { url: `${MINI_APP_URL}/profile.html` } },
           { text: '📦 Мои товары', callback_data: 'my_products' }
         ],
         [
