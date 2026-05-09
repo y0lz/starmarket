@@ -7,10 +7,16 @@
     "start": "node bot.js",
     "dev": "nodemon bot.js"
   },
-  "keywords": ["telegram", "bot", "marketplace", "mini-app"],
+  "keywords": [
+    "telegram",
+    "bot",
+    "marketplace",
+    "mini-app"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@supabase/supabase-js": "^2.105.4",
     "node-telegram-bot-api": "^0.66.0"
   },
   "devDependencies": {

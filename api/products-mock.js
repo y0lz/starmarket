@@ -1,100 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
-
-// Supabase configuration
-const supabaseUrl = process.env.SUPABASE_URL || 'https://gjainivmaudjxmhgrcnp.supabase.co';
-const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqYWluaXZtYXVkanhtaGdyY25wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzAwNTEsImV4cCI6MjA5MzkwNjA1MX0._ZLO64J76Cfh8MQypJKbAe4Qw0ofPts_czZ0gRvmhfw';
-
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-export default async function handler(request, response) {
-  try {
-    // Получаем параметры фильтрации
-    const { game, category, subcategory, minPrice, maxPrice, sort, search } = request.query;
-    
-    // Базовый запрос
-    let query = supabase
-      .from('products')
-      .select('*')
-      .eq('is_active', true);
-    
-    // Фильтры
-    if (game && game !== 'all') {
-      query = query.eq('game', game);
-    }
-    
-    if (category && category !== 'all') {
-      query = query.eq('category', category);
-    }
-    
-    if (subcategory && subcategory !== 'all') {
-      query = query.eq('subcategory', subcategory);
-    }
-    
-    if (minPrice) {
-      const minPriceNum = parseInt(minPrice);
-      if (!isNaN(minPriceNum)) {
-        query = query.gte('price_stars', minPriceNum);
-      }
-    }
-    
-    if (maxPrice) {
-      const maxPriceNum = parseInt(maxPrice);
-      if (!isNaN(maxPriceNum)) {
-        query = query.lte('price_stars', maxPriceNum);
-      }
-    }
-    
-    // Поиск
-    if (search) {
-      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,game.ilike.%${search}%`);
-    }
-    
-    // Сортировка
-    if (sort) {
-      switch (sort) {
-        case 'price_asc':
-          query = query.order('price_stars', { ascending: true });
-          break;
-        case 'price_desc':
-          query = query.order('price_stars', { ascending: false });
-          break;
-        case 'name':
-          query = query.order('title', { ascending: true });
-          break;
-        case 'popular':
-          query = query.order('sales_count', { ascending: false });
-          break;
-        case 'rating':
-          query = query.order('seller_rating', { ascending: false });
-          break;
-        default:
-          query = query.order('sales_count', { ascending: false });
-      }
-    } else {
-      query = query.order('sales_count', { ascending: false });
-    }
-    
-    // Выполняем запрос
-    const { data, error } = await query;
-    
-    if (error) {
-      console.error('Supabase error:', error);
-      // Fallback на mock данные если БД недоступна
-      return response.status(200).json({ products: getMockProducts() });
-    }
-    
-    response.status(200).json({ products: data });
-    
-  } catch (e) {
-    console.error('API error:', e);
-    // Fallback на mock данные
-    response.status(200).json({ products: getMockProducts() });
-  }
-}
-
-// Mock данные как fallback
-function getMockProducts() {
-  return [
+export default function handler(request, response) {
+  const products = [
     {
       id: 1,
       title: "Золото 1000 шт",
@@ -167,6 +72,20 @@ function getMockProducts() {
     },
     {
       id: 6,
+      title: "Примогемы 3000 шт",
+      description: "Игровая валюта для молитв и получения персонажей. Быстрая доставка в течение 5 минут после оплаты. Безопасная передача через официальный метод.",
+      price_stars: 250,
+      game: "Genshin Impact",
+      category: "Валюта",
+      subcategory: "Примогемы",
+      image: "https://via.placeholder.com/300x200/00CED1/FFFFFF?text=Primogems",
+      type: "multi",
+      stock: 75,
+      seller_rating: 4.8,
+      sales_count: 189
+    },
+    {
+      id: 7,
       title: "V-Bucks 13500",
       description: "Премиум валюта Fortnite. Подходит для покупки Battle Pass и скинов в магазине. Код активации отправляется сразу после оплаты. Работает на всех платформах.",
       price_stars: 800,
@@ -180,7 +99,7 @@ function getMockProducts() {
       sales_count: 312
     },
     {
-      id: 7,
+      id: 8,
       title: "Редкий скин Renegade Raider",
       description: "Эксклюзивный скин из первого сезона Fortnite. Больше не доступен в магазине. Уникальная возможность получить легендарный скин. Передача через аккаунт Epic Games.",
       price_stars: 1200,
@@ -194,7 +113,21 @@ function getMockProducts() {
       sales_count: 5
     },
     {
-      id: 8,
+      id: 9,
+      title: "Battle Pass Season 5",
+      description: "Боевой пропуск текущего сезона Fortnite. Включает доступ ко всем наградам сезона. Автоматическая активация на вашем аккаунте Epic Games.",
+      price_stars: 950,
+      game: "Fortnite",
+      category: "Боевые пропуски",
+      subcategory: "Сезонные",
+      image: "https://via.placeholder.com/300x200/32CD32/FFFFFF?text=Battle+Pass",
+      type: "single",
+      stock: 20,
+      seller_rating: 4.8,
+      sales_count: 145
+    },
+    {
+      id: 10,
       title: "Робуксы 10000",
       description: "Игровая валюта Roblox. Можно потратить на игры, предметы и апгрейды. Доставка кодом активации в течение 5 минут. Работает на всех платформах.",
       price_stars: 600,
@@ -208,7 +141,49 @@ function getMockProducts() {
       sales_count: 267
     },
     {
-      id: 9,
+      id: 11,
+      title: "Премиум аккаунт 6 месяцев",
+      description: "Аккаунт с активной подпиской Roblox Premium на 6 месяцев. Доступ ко всем преимуществам Premium. Ежемесячная выплата Robux. Скидки в магазине.",
+      price_stars: 900,
+      game: "Roblox",
+      category: "Аккаунты",
+      subcategory: "Премиум",
+      image: "https://via.placeholder.com/300x200/FFD700/000000?text=Premium",
+      type: "single",
+      stock: 2,
+      seller_rating: 4.9,
+      sales_count: 34
+    },
+    {
+      id: 12,
+      title: "Алмазы 5000 шт",
+      description: "Премиум валюта для покупки героев и скинов в Mobile Legends. Моментальная доставка после оплаты. Безопасная передача через официальный метод.",
+      price_stars: 400,
+      game: "Mobile Legends",
+      category: "Валюта",
+      subcategory: "Алмазы",
+      image: "https://via.placeholder.com/300x200/00BFFF/FFFFFF?text=Diamonds",
+      type: "multi",
+      stock: 60,
+      seller_rating: 4.8,
+      sales_count: 178
+    },
+    {
+      id: 13,
+      title: "Эпический скин героя",
+      description: "Редкий скин с уникальными эффектами и анимацией. Доступен только через событие. Передача через привязку аккаунта. Включает эксклюзивные эффекты умений.",
+      price_stars: 700,
+      game: "Mobile Legends",
+      category: "Косметика",
+      subcategory: "Скины героев",
+      image: "https://via.placeholder.com/300x200/FF1493/FFFFFF?text=Epic+Skin",
+      type: "single",
+      stock: 5,
+      seller_rating: 4.9,
+      sales_count: 67
+    },
+    {
+      id: 14,
       title: "AK-47 Redline FT",
       description: "Популярный скин AK-47 в состоянии Field-Tested. Чистый вид без царапин. Мгновенная передача через Steam трейд. Безопасная сделка с гарантией.",
       price_stars: 450,
@@ -222,7 +197,7 @@ function getMockProducts() {
       sales_count: 89
     },
     {
-      id: 10,
+      id: 15,
       title: "AWP Dragon Lore MW",
       description: "Легендарный скин AWP Dragon Lore в состоянии Minimal Wear. Один из самых редких скинов в игре. Сертифицирован StatTrak™. Передача через Steam трейд.",
       price_stars: 5000,
@@ -236,4 +211,71 @@ function getMockProducts() {
       sales_count: 3
     }
   ];
+
+  // Фильтрация и сортировка
+  const { game, category, subcategory, minPrice, maxPrice, sort, search } = request.query;
+  let filtered = products;
+
+  if (game && game !== 'all') {
+    filtered = filtered.filter(p => p.game === game);
+  }
+  
+  if (category && category !== 'all') {
+    filtered = filtered.filter(p => p.category === category);
+  }
+
+  if (subcategory && subcategory !== 'all') {
+    filtered = filtered.filter(p => p.subcategory === subcategory);
+  }
+
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filtered = filtered.filter(p => 
+      p.title.toLowerCase().includes(searchLower) ||
+      p.description.toLowerCase().includes(searchLower) ||
+      p.game.toLowerCase().includes(searchLower)
+    );
+  }
+
+  if (minPrice) {
+    const minPriceNum = parseInt(minPrice);
+    if (!isNaN(minPriceNum)) {
+      filtered = filtered.filter(p => p.price_stars >= minPriceNum);
+    }
+  }
+
+  if (maxPrice) {
+    const maxPriceNum = parseInt(maxPrice);
+    if (!isNaN(maxPriceNum)) {
+      filtered = filtered.filter(p => p.price_stars <= maxPriceNum);
+    }
+  }
+
+  // Сортировка
+  if (sort) {
+    switch (sort) {
+      case 'price_asc':
+        filtered = [...filtered].sort((a, b) => a.price_stars - b.price_stars);
+        break;
+      case 'price_desc':
+        filtered = [...filtered].sort((a, b) => b.price_stars - a.price_stars);
+        break;
+      case 'name':
+        filtered = [...filtered].sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case 'popular':
+        filtered = [...filtered].sort((a, b) => b.sales_count - a.sales_count);
+        break;
+      case 'rating':
+        filtered = [...filtered].sort((a, b) => b.seller_rating - a.seller_rating);
+        break;
+      default:
+        // По умолчанию по популярности
+        filtered = [...filtered].sort((a, b) => b.sales_count - a.sales_count);
+    }
+  } else {
+    filtered = [...filtered].sort((a, b) => b.sales_count - a.sales_count);
+  }
+
+  response.status(200).json({ products: filtered });
 }

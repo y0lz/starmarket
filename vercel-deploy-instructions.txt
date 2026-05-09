@@ -1,0 +1,37 @@
+=== ИНСТРУКЦИЯ ПО ДЕПЛОЮ НА VERCEL ===
+
+Проект обновлен, но нужно задеплоить на Vercel вручную.
+
+ВАРИАНТ 1: Через Vercel Dashboard (самый простой)
+1. Откройте https://vercel.com/dashboard
+2. Найдите проект "mini-app"
+3. Перейдите в Settings → Git
+4. Подключите GitHub репозиторий (или создайте новый)
+5. Vercel автоматически задеплоит при push
+
+ВАРИАНТ 2: Через Vercel CLI (требует авторизации)
+1. Откройте https://vercel.com/account/tokens
+2. Создайте новый токен
+3. Экспортируйте: export VERCEL_TOKEN=ваш_токен
+4. Запустите: vercel --prod --token=$VERCEL_TOKEN
+
+ВАРИАНТ 3: Загрузить файлы вручную
+1. Откройте https://vercel.com/new
+2. Выберите "Import Project"
+3. Загрузите файлы из /root/mini-app/
+4. Укажите project name: mini-app
+
+ТЕКУЩИЙ СТАТУС:
+✅ Бот запущен и работает (PID: 34337)
+✅ index.html обновлен с новыми фичами
+✅ API products.js обновлен (15 товаров)
+⏳ Нужен деплой на Vercel
+
+ФАЙЛЫ ДЛЯ ДЕПЛОЯ:
+- index.html (обновленный интерфейс)
+- api/products.js (расширенная база товаров)
+- api/auth.js
+- api/create-invoice.js
+- api/webhook.js
+
+URL после деплоя: https://mini-app-pi-ivory.vercel.app
