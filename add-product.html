@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить товар — StarMarket</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --card: #161b22;
+            --primary: #0088cc;
+            --accent: #ff9d00;
+            --text: #e6edf3;
+            --border: #30363d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .back-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .form-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .required {
+            color: #ff4444;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 15px;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        textarea.form-input {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #8b949e;
+            margin-top: 4px;
+        }
+
+        .type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .type-option {
+            padding: 16px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .type-option.active {
+            border-color: var(--primary);
+            background: rgba(0, 136, 204, 0.1);
+        }
+
+        .type-option-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .type-option-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .type-option-desc {
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            width: calc(100% - 32px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .error-msg {
+            background: #ff4444;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .success-msg {
+            background: #00aa00;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .limit-info {
+            background: rgba(0, 136, 204, 0.1);
+            border: 1px solid var(--primary);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .limit-warning {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid #ff4444;
+        }
+
+        .image-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .help-text {
+            font-size: 13px;
+            color: #8b949e;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="goBack()">← Назад</button>
+        <h1>➕ Добавить товар</h1>
+    </div>
+
+    <div id="errorMsg" class="error-msg"></div>
+    <div id="successMsg" class="success-msg"></div>
+
+    <div id="limitInfo" class="limit-info"></div>
+
+    <form id="productForm">
+        <div class="form-card">
+            <h3>Основная информация</h3>
+            
+            <div class="form-group">
+                <label class="form-label">Название товара <span class="required">*</span></label>
+                <input type="text" id="title" class="form-input" placeholder="Например: 1000 золота WoW" maxlength="100" required>
+                <div class="char-counter"><span id="titleCounter">0</span>/100</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Описание <span class="required">*</span></label>
+                <textarea id="description" class="form-input" placeholder="Подробное описание товара, условия доставки..." maxlength="1000" required></textarea>
+                <div class="char-counter"><span id="descCounter">0</span>/1000</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Цена в Stars <span class="required">*</span></label>
+                <input type="number" id="price" class="form-input" placeholder="100" min="1" required>
+                <div class="help-text">⭐ 1 Star ≈ $0.02 USD</div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h3>Категория</h3>
+            
+            <div class="form-group">
+                <label class="form-label">Игра <span class="required">*</span></label>
+                <select id="game" class="form-select" required>
+                    <option value="">Выберите игру</option>
+                    <option value="World of Warcraft">World of Warcraft</option>
+                    <option value="Genshin Impact">Genshin Impact</option>
+                    <option value="Fortnite">Fortnite</option>
+                    <option value="Roblox">Roblox</option>
+                    <option value="CS2">Counter-Strike 2</option>
+                    <option value="Mobile Legends">Mobile Legends</option>
+                    <option value="Valorant">Valorant</option>
+                    <option value="League of Legends">League of Legends</option>
+                    <option value="Dota 2">Dota 2</option>
+                    <option value="Minecraft">Minecraft</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Категория <span class="required">*</span></label>
+                <select id="category" class="form-select" required>
+                    <option value="">Выберите категорию</option>
+                    <option value="Валюта">💰 Валюта</option>
+                    <option value="Предметы">⚔️ Предметы</option>
+                    <option value="Аккаунты">👤 Аккаунты</option>
+                    <option value="Персонажи">🦸 Персонажи</option>
+                    <option value="Косметика">✨ Косметика</option>
+                    <option value="Услуги">🎯 Услуги</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Подкатегория</label>
+                <input type="text" id="subcategory" class="form-input" placeholder="Например: Золото, Скины, Прокачка">
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h3>Тип товара</h3>
+            
+            <div class="type-selector">
+                <div class="type-option active" data-type="single">
+                    <div class="type-option-icon">📦</div>
+                    <div class="type-option-title">Штучный</div>
+                    <div class="type-option-desc">Один товар</div>
+                </div>
+                <div class="type-option" data-type="multi">
+                    <div class="type-option-icon">📚</div>
+                    <div class="type-option-title">Мультитовар</div>
+                    <div class="type-option-desc">Несколько штук</div>
+                </div>
+            </div>
+
+            <div class="form-group" id="stockGroup" style="display: none; margin-top: 16px;">
+                <label class="form-label">Количество в наличии</label>
+                <input type="number" id="stock" class="form-input" placeholder="10" min="1">
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h3>Изображение</h3>
+            
+            <div class="form-group">
+                <label class="form-label">URL изображения</label>
+                <input type="url" id="image" class="form-input" placeholder="https://example.com/image.jpg">
+                <div class="help-text">Оставьте пустым для автоматической заглушки</div>
+                <img id="imagePreview" class="image-preview">
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Добавить товар</button>
+    </form>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.BackButton.show();
+        tg.BackButton.onClick(() => goBack());
+
+        const userId = tg.initDataUnsafe?.user?.id || 123456;
+        const API_URL = window.location.origin;
+
+        let selectedType = 'single';
+        let userProfile = null;
+
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = msg;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById('successMsg');
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+
+        // Счетчики символов
+        document.getElementById('title').addEventListener('input', (e) => {
+            document.getElementById('titleCounter').textContent = e.target.value.length;
+        });
+
+        document.getElementById('description').addEventListener('input', (e) => {
+            document.getElementById('descCounter').textContent = e.target.value.length;
+        });
+
+        // Превью изображения
+        document.getElementById('image').addEventListener('input', (e) => {
+            const preview = document.getElementById('imagePreview');
+            if (e.target.value) {
+                preview.src = e.target.value;
+                preview.style.display = 'block';
+                preview.onerror = () => preview.style.display = 'none';
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+
+        // Выбор типа товара
+        document.querySelectorAll('.type-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.type-option').forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+                selectedType = option.dataset.type;
+                
+                const stockGroup = document.getElementById('stockGroup');
+                if (selectedType === 'multi') {
+                    stockGroup.style.display = 'block';
+                    document.getElementById('stock').required = true;
+                } else {
+                    stockGroup.style.display = 'none';
+                    document.getElementById('stock').required = false;
+                }
+            });
+        });
+
+        // Загрузка профиля и проверка лимитов
+        async function loadProfile() {
+            try {
+                const response = await fetch(`${API_URL}/api/profile?userId=${userId}`);
+                const data = await response.json();
+
+                if (response.ok && data.user) {
+                    userProfile = data.user;
+                    
+                    const limitInfo = document.getElementById('limitInfo');
+                    const remaining = data.user.max_products - data.user.active_products_count;
+                    
+                    if (!data.user.can_add_product) {
+                        limitInfo.className = 'limit-info limit-warning';
+                        limitInfo.innerHTML = `⚠️ Достигнут лимит товаров (${data.user.active_products_count}/${data.user.max_products}). ${data.user.is_premium ? 'Удалите неактивные товары.' : 'Обновитесь до Premium для неограниченных товаров.'}`;
+                        document.getElementById('submitBtn').disabled = true;
+                    } else {
+                        limitInfo.className = 'limit-info';
+                        limitInfo.innerHTML = `📦 Осталось слотов: ${remaining}/${data.user.max_products} ${data.user.is_premium ? '(Premium)' : '(Free)'}`;
+                    }
+
+                    if (!data.user.nickname) {
+                        showError('Сначала настройте профиль и выберите никнейм');
+                        document.getElementById('submitBtn').disabled = true;
+                        setTimeout(() => window.location.href = '/profile.html', 2000);
+                    }
+                } else {
+                    showError('Сначала настройте профиль');
+                    setTimeout(() => window.location.href = '/profile.html', 2000);
+                }
+            } catch (e) {
+                console.error('Load profile error:', e);
+                showError('Ошибка загрузки профиля');
+            }
+        }
+
+        // Отправка формы
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const price = parseInt(document.getElementById('price').value);
+            const game = document.getElementById('game').value;
+            const category = document.getElementById('category').value;
+            const subcategory = document.getElementById('subcategory').value.trim() || category;
+            const image = document.getElementById('image').value.trim();
+            const stock = selectedType === 'multi' ? parseInt(document.getElementById('stock').value) : 1;
+
+            if (!title || !description || !price || !game || !category) {
+                showError('Заполните все обязательные поля');
+                return;
+            }
+
+            if (price < 1) {
+                showError('Цена должна быть больше 0');
+                return;
+            }
+
+            if (selectedType === 'multi' && stock < 1) {
+                showError('Укажите количество товара');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Добавление...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/seller`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId,
+                        title,
+                        description,
+                        price_stars: price,
+                        game,
+                        category,
+                        subcategory,
+                        image,
+                        type: selectedType,
+                        stock
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess(`✅ Товар добавлен! Осталось слотов: ${data.remaining_slots}`);
+                    setTimeout(() => goBack(), 2000);
+                } else {
+                    if (data.error === 'Product limit reached') {
+                        showError(data.message);
+                    } else if (data.error === 'User not found. Please set up your profile first.') {
+                        showError('Сначала настройте профиль');
+                        setTimeout(() => window.location.href = '/profile.html', 2000);
+                    } else {
+                        showError(data.error || 'Ошибка добавления товара');
+                    }
+                }
+            } catch (e) {
+                console.error('Submit error:', e);
+                showError('Ошибка добавления товара');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Добавить товар';
+            }
+        });
+
+        loadProfile();
+    </script>
+</body>
+</html>

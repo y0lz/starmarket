@@ -385,18 +385,6 @@
     </div>
 
     <script>
-        // Роутинг
-        const urlParams = new URLSearchParams(window.location.search);
-        const page = urlParams.get('page');
-        
-        if (page === 'profile') {
-            window.location.href = '/profile.html';
-        } else if (page === 'add-product') {
-            window.location.href = '/add-product.html';
-        } else if (page === 'my-products') {
-            window.location.href = '/my-products.html';
-        }
-
         let currentUser = null;
         let currentProduct = null;
         let allProducts = [];
