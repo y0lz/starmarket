@@ -1,0 +1,19 @@
+{
+  "name": "starmarket-bot",
+  "version": "1.0.0",
+  "description": "StarMarket Telegram Bot with Mini App",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "dev": "nodemon bot.js"
+  },
+  "keywords": ["telegram", "bot", "marketplace", "mini-app"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.66.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

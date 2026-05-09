@@ -1,1 +1,7 @@
+node_modules/
+.env
 .vercel
+*.log
+.DS_Store
+deployment.tar.gz
+index.html.backup
