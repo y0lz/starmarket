@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StarMarket — P2P Маркетплейс</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --card: #161b22;
+            --primary: #0088cc;
+            --accent: #ff9d00;
+            --text: #e6edf3;
+            --border: #30363d;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            background: linear-gradient(90deg, #0088cc, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8b949e;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 16px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        .categories {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .cat-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cat-btn.active, .cat-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,136,204,0.2);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .card-content {
+            padding: 12px;
+        }
+
+        .card h4 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+        }
+
+        .card p {
+            margin: 0 0 12px 0;
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-weight: bold;
+            color: var(--accent);
+            font-size: 16px;
+        }
+
+        .buy-btn {
+            background: linear-gradient(135deg, #0088cc, #00b4ff);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .buy-btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid var(--border);
+        }
+
+        .telegram-btn {
+            background: #0088cc;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">
+        ⏳ Загрузка StarMarket...
+    </div>
+
+    <div id="app" style="display: none;">
+        <div class="header">
+            <h1>⭐ StarMarket</h1>
+            <div class="user-info" id="userInfo">
+                <span id="userName"></span>
+                <img id="userAvatar" class="user-avatar" src="" alt="">
+            </div>
+        </div>
+
+        <input type="text" class="search-bar" placeholder="🔍 Поиск товаров..." id="searchInput">
+
+        <div class="categories">
+            <div class="cat-btn active" data-game="all">Все</div>
+            <div class="cat-btn" data-game="CS2">CS2</div>
+            <div class="cat-btn" data-game="WoW">WoW</div>
+            <div class="cat-btn" data-game="Fortnite">Fortnite</div>
+        </div>
+
+        <div class="grid" id="productGrid">
+            <div class="loading">Загрузка товаров...</div>
+        </div>
+    </div>
+
+    <!-- Error block -->
+    <div id="errorBlock" style="display: none;" class="loading">
+        <h2>⚠️ Ошибка авторизации</h2>
+        <p>Пожалуйста, откройте приложение через Telegram.</p>
+        <p style="font-size: 12px; color: #666;" id="errorDetails"></p>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h3>Покупка товара</h3>
+            <p>Вы собираетесь купить: <strong id="modal-item"></strong></p>
+            <p>Цена: <strong style="color: #ff9d00;" id="modal-price"></strong></p>
+            <p style="font-size: 12px; color: #8b949e;">
+                Оплата через Telegram Stars (XTR)<br>
+                <small>Средства будут заморожены до подтверждения</small>
+            </p>
+            <button class="telegram-btn" onclick="payWithTelegram()">
+                💫 Оплатить через Telegram Stars
+            </button>
+            <button class="buy-btn" style="background: transparent; color: #8b949e; margin-top: 10px; width: 100%;" onclick="closeModal()">Отмена</button>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let currentProduct = null;
+        let allProducts = [];
+
+        // Главная функция инициализации
+        async function initApp() {
+            const tg = window.Telegram?.WebApp;
+            
+            if (tg) {
+                tg.ready();
+                tg.expand();
+                
+                try {
+                    console.log('initData present:', !!tg.initData);
+                    console.log('initDataUnsafe user:', !!tg.initDataUnsafe?.user);
+                    
+                    // Сначала пробуем взять данные напрямую из initDataUnsafe
+                    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                        console.log('Using initDataUnsafe directly');
+                        currentUser = tg.initDataUnsafe.user;
+                        showApp();
+                        return;
+                    }
+                    
+                    // Если initDataUnsafe пуст, но есть initData — валидируем
+                    if (tg.initData) {
+                        console.log('Validating via backend');
+                        await validateTelegramData(tg.initData);
+                        return;
+                    }
+                    
+                    // Если вообще нет данных
+                    showError('Данные авторизации недоступны. Попробуйте перезайти через кнопку бота.');
+                    
+                } catch (e) {
+                    console.error('Init error:', e);
+                    showError('Ошибка инициализации: ' + e.message);
+                }
+                
+            } else {
+                showError('Приложение должно быть открыто через Telegram');
+            }
+        }
+
+        async function validateTelegramData(initData) {
+            try {
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ initData: initData })
+                });
+                
+                const data = await response.json();
+                console.log('Auth response:', data);
+                
+                if (data.ok && data.user) {
+                    currentUser = data.user;
+                    showApp();
+                } else {
+                    // Если валидация не удалась, но есть initDataUnsafe — используем его
+                    const tg = Telegram.WebApp;
+                    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                        currentUser = tg.initDataUnsafe.user;
+                        showApp();
+                    } else {
+                        showError('Ошибка авторизации: ' + (data.error || 'Неверная подпись'));
+                    }
+                }
+            } catch (e) {
+                console.error('Auth fetch error:', e);
+                showError('Ошибка соединения с сервером');
+            }
+        }
+
+        function showApp() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('errorBlock').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.first_name || currentUser.username;
+                if (currentUser.photo_url) {
+                    document.getElementById('userAvatar').src = currentUser.photo_url;
+                }
+            }
+
+            loadProducts();
+            initEventListeners();
+        }
+
+        function showError(msg) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('errorBlock').style.display = 'block';
+            document.getElementById('errorDetails').textContent = msg;
+            
+            // Отладочная информация
+            const debugInfo = {
+                tgExists: !!window.Telegram,
+                webAppExists: !!(window.Telegram && window.Telegram.WebApp),
+                initData: window.Telegram?.WebApp?.initData ? 'present' : 'missing',
+                initDataUnsafe: window.Telegram?.WebApp?.initDataUnsafe ? 'present' : 'missing'
+            };
+            console.log('Debug info:', debugInfo);
+            document.getElementById('errorDetails').textContent += `\n\nDebug: ${JSON.stringify(debugInfo)}`;
+        }
+
+        async function loadProducts() {
+            try {
+                const res = await fetch('/api/products');
+                const data = await res.json();
+                allProducts = data.products || data;
+                renderProducts(allProducts);
+            } catch (e) {
+                document.getElementById('productGrid').innerHTML = 
+                    '<div class="loading">Ошибка загрузки товаров</div>';
+                console.error('Load products error:', e);
+            }
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('productGrid');
+            if (products.length === 0) {
+                grid.innerHTML = '<div class="loading">Товаров пока нет</div>';
+                return;
+            }
+            
+            grid.innerHTML = products.map(p => `
+                <div class="card">
+                    <div class="card-img">${getGameEmoji(p.game)}</div>
+                    <div class="card-content">
+                        <h4>${p.title}</h4>
+                        <p>${p.description}</p>
+                        <div class="price-row">
+                            <div class="price">${p.price_stars} ⭐</div>
+                            <button class="buy-btn" onclick="openModal('${p.title}', ${p.price_stars})">Купить</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getGameEmoji(game) {
+            const emojis = { 'CS2': '🔫', 'WoW': '🧙', 'Fortnite': '🎮' };
+            return emojis[game] || '🎮';
+        }
+
+        function initEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const search = e.target.value.toLowerCase();
+                const filtered = allProducts.filter(p => 
+                    p.title.toLowerCase().includes(search) || 
+                    p.description.toLowerCase().includes(search)
+                );
+                renderProducts(filtered);
+            });
+
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const game = this.dataset.game;
+                    if (game === 'all') renderProducts(allProducts);
+                    else renderProducts(allProducts.filter(p => p.game === game));
+                });
+            });
+        }
+
+        function openModal(name, price) {
+            currentProduct = { name, price };
+            document.getElementById('modal-item').textContent = name;
+            document.getElementById('modal-price').textContent = price + ' ⭐';
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        async function payWithTelegram() {
+            if (!currentProduct || !currentUser) {
+                alert('Ошибка: пользователь не авторизован');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/create-invoice', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: currentProduct.name,
+                        description: `Покупка: ${currentProduct.name}`,
+                        amount: currentProduct.price,
+                        userId: currentUser.id
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.invoiceLink) {
+                    if (window.Telegram && Telegram.WebApp) {
+                        Telegram.WebApp.openInvoice(data.invoiceLink, (status) => {
+                            if (status === 'paid') {
+                                alert('✅ Оплата прошла успешно!');
+                                closeModal();
+                            }
+                        });
+                    } else {
+                        window.open(data.invoiceLink, '_blank');
+                    }
+                } else {
+                    alert('Ошибка создания платежа: ' + (data.error || 'Unknown error'));
+                }
+            } catch (e) {
+                console.error('Payment error:', e);
+                alert('Ошибка при создании платежа');
+            }
+        }
+
+        // Запуск при загрузке
+        window.addEventListener('load', () => {
+            // Небольшая задержка, чтобы Telegram WebApp успел инициализироваться
+            setTimeout(initApp, 100);
+        });
+    </script>
+</body>
+</html>

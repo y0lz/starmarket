@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StarMarket — P2P Маркетплейс</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --card: #161b22;
+            --primary: #0088cc;
+            --accent: #ff9d00;
+            --text: #e6edf3;
+            --border: #30363d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding-bottom: 20px;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 100;
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+            background: linear-gradient(90deg, #0088cc, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+
+        .categories {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            scrollbar-width: none;
+        }
+
+        .categories::-webkit-scrollbar {
+            display: none;
+        }
+
+        .cat-chip {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 7px 14px;
+            border-radius: 18px;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .cat-chip.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .subcategories {
+            display: none;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .subcategories.visible {
+            display: flex;
+        }
+
+        .subcat-chip {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: #8b949e;
+            padding: 5px 12px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .subcat-chip.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--text);
+        }
+
+        .sort-bar {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .sort-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: #8b949e;
+            padding: 5px 12px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .sort-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--text);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 16px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .card:active {
+            transform: scale(0.98);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 130px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .card-content {
+            padding: 10px;
+        }
+
+        .card-game {
+            font-size: 10px;
+            color: #8b949e;
+            margin-bottom: 4px;
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .card-price {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .card-type {
+            font-size: 10px;
+            color: #8b949e;
+            margin-top: 4px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.show {
+            display: block;
+        }
+
+        .modal-content {
+            background: var(--card);
+            margin: 20px auto;
+            max-width: 500px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .modal-img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .modal-title {
+            font-size: 19px;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .close-btn {
+            font-size: 26px;
+            color: #8b949e;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 8px;
+        }
+
+        .modal-meta {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+            font-size: 12px;
+            color: #8b949e;
+            flex-wrap: wrap;
+        }
+
+        .modal-desc {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 18px;
+            color: var(--text);
+        }
+
+        .modal-price {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 14px;
+        }
+
+        .buy-btn {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #0088cc, #00b4ff);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8b949e;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8b949e;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">
+        ⏳ Загрузка StarMarket...
+    </div>
+
+    <div id="app" style="display: none;">
+        <div class="header">
+            <div class="header-top">
+                <h1>⭐ StarMarket</h1>
+                <div class="user-info" id="userInfo">
+                    <span id="userName"></span>
+                    <img id="userAvatar" class="user-avatar" src="" alt="">
+                </div>
+            </div>
+            
+            <input type="text" class="search-bar" placeholder="🔍 Поиск товаров..." id="searchInput">
+            
+            <div class="categories" id="categories"></div>
+            <div class="subcategories" id="subcategories"></div>
+            
+            <div class="sort-bar">
+                <div class="sort-btn active" data-sort="default">По умолчанию</div>
+                <div class="sort-btn" data-sort="price-asc">Цена ↑</div>
+                <div class="sort-btn" data-sort="price-desc">Цена ↓</div>
+                <div class="sort-btn" data-sort="name">По названию</div>
+            </div>
+        </div>
+
+        <div class="grid" id="productGrid"></div>
+        
+        <div class="empty" id="emptyState" style="display: none;">
+            <div class="empty-icon">🔍</div>
+            <div>Товары не найдены</div>
+        </div>
+    </div>
+
+    <div id="errorBlock" style="display: none;" class="loading">
+        <h2>⚠️ Ошибка авторизации</h2>
+        <p>Пожалуйста, откройте приложение через Telegram.</p>
+        <p style="font-size: 12px; color: #666;" id="errorDetails"></p>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <img class="modal-img" id="modalImg" src="" alt="">
+            <div class="modal-body">
+                <div class="modal-header">
+                    <div class="modal-title" id="modalTitle"></div>
+                    <div class="close-btn" id="closeModal">&times;</div>
+                </div>
+                <div class="modal-meta" id="modalMeta"></div>
+                <div class="modal-desc" id="modalDesc"></div>
+                <div class="modal-price" id="modalPrice"></div>
+                <button class="buy-btn" id="buyBtn">💫 Купить через Telegram Stars</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let currentProduct = null;
+        let allProducts = [];
+        let state = {
+            selectedCategory: null,
+            selectedSubcategory: null,
+            searchQuery: '',
+            sortBy: 'default'
+        };
+
+        // Mock products with detailed info
+        const mockProducts = [
+            {
+                id: 1,
+                title: "Золото 1000 шт",
+                description: "Игровое золото для быстрого старта. Доставка моментальная после оплаты. Передача через внутриигровую почту.",
+                price_stars: 150,
+                game: "World of Warcraft",
+                category: "Валюта",
+                subcategory: "Золото",
+                image: "https://via.placeholder.com/300x200/FFD700/000000?text=Gold",
+                type: "multi",
+                stock: 50
+            },
+            {
+                id: 2,
+                title: "Легендарный меч",
+                description: "Уникальный меч с уроном 500-750. Редкий дроп из рейда. Только один экземпляр в наличии.",
+                price_stars: 500,
+                game: "World of Warcraft",
+                category: "Предметы",
+                subcategory: "Оружие",
+                image: "https://via.placeholder.com/300x200/8B0000/FFD700?text=Sword",
+                type: "single",
+                stock: 1
+            },
+            {
+                id: 3,
+                title: "Аккаунт 80 lvl",
+                description: "Прокачанный аккаунт с максимальным уровнем. Полный набор эпической экипировки. Все профессии прокачаны до максимума.",
+                price_stars: 2000,
+                game: "World of Warcraft",
+                category: "Аккаунты",
+                subcategory: "Прокачанные",
+                image: "https://via.placeholder.com/300x200/4169E1/FFFFFF?text=Account",
+                type: "single",
+                stock: 1
+            },
+            {
+                id: 4,
+                title: "Кристаллы 5000 шт",
+                description: "Премиум валюта для покупки эксклюзивных предметов. Моментальная доставка на аккаунт.",
+                price_stars: 300,
+                game: "Genshin Impact",
+                category: "Валюта",
+                subcategory: "Кристаллы",
+                image: "https://via.placeholder.com/300x200/9370DB/FFFFFF?text=Crystals",
+                type: "multi",
+                stock: 100
+            },
+            {
+                id: 5,
+                title: "5★ персонаж",
+                description: "Случайный 5-звездочный персонаж. Гарантированный дроп. Передача через привязку аккаунта.",
+                price_stars: 1500,
+                game: "Genshin Impact",
+                category: "Персонажи",
+                subcategory: "5 звезд",
+                image: "https://via.placeholder.com/300x200/FF69B4/FFFFFF?text=5★+Hero",
+                type: "single",
+                stock: 3
+            },
+            {
+                id: 6,
+                title: "V-Bucks 13500",
+                description: "Премиум валюта Fortnite. Подходит для покупки Battle Pass и скинов. Код активации.",
+                price_stars: 800,
+                game: "Fortnite",
+                category: "Валюта",
+                subcategory: "V-Bucks",
+                image: "https://via.placeholder.com/300x200/7B68EE/FFFFFF?text=V-Bucks",
+                type: "multi",
+                stock: 30
+            },
+            {
+                id: 7,
+                title: "Редкий скин",
+                description: "Эксклюзивный скин из старого Battle Pass. Больше не доступен в магазине. Уникальная возможность.",
+                price_stars: 1200,
+                game: "Fortnite",
+                category: "Косметика",
+                subcategory: "Скины",
+                image: "https://via.placeholder.com/300x200/FF4500/FFFFFF?text=Rare+Skin",
+                type: "single",
+                stock: 1
+            },
+            {
+                id: 8,
+                title: "Робуксы 10000",
+                description: "Игровая валюта Roblox. Можно потратить на игры, предметы и апгрейды. Доставка кодом.",
+                price_stars: 600,
+                game: "Roblox",
+                category: "Валюта",
+                subcategory: "Робуксы",
+                image: "https://via.placeholder.com/300x200/E60012/FFFFFF?text=Robux",
+                type: "multi",
+                stock: 40
+            }
+        ];
+
+        async function initApp() {
+            const tg = window.Telegram?.WebApp;
+            
+            if (tg) {
+                tg.ready();
+                tg.expand();
+                
+                try {
+                    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                        currentUser = tg.initDataUnsafe.user;
+                        showApp();
+                        return;
+                    }
+                    
+                    if (tg.initData) {
+                        await validateTelegramData(tg.initData);
+                        return;
+                    }
+                    
+                    showError('Данные авторизации недоступны. Попробуйте перезайти через кнопку бота.');
+                    
+                } catch (e) {
+                    console.error('Init error:', e);
+                    showError('Ошибка инициализации: ' + e.message);
+                }
+                
+            } else {
+                showError('Приложение должно быть открыто через Telegram');
+            }
+        }
+
+        async function validateTelegramData(initData) {
+            try {
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ initData: initData })
+                });
+                
+                const data = await response.json();
+                
+                if (data.ok && data.user) {
+                    currentUser = data.user;
+                    showApp();
+                } else {
+                    const tg = Telegram.WebApp;
+                    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                        currentUser = tg.initDataUnsafe.user;
+                        showApp();
+                    } else {
+                        showError('Ошибка авторизации: ' + (data.error || 'Неверная подпись'));
+                    }
+                }
+            } catch (e) {
+                console.error('Auth fetch error:', e);
+                showError('Ошибка соединения с сервером');
+            }
+        }
+
+        function showApp() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('errorBlock').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.first_name || currentUser.username;
+                if (currentUser.photo_url) {
+                    document.getElementById('userAvatar').src = currentUser.photo_url;
+                }
+            }
+
+            loadProducts();
+            initEventListeners();
+        }
+
+        function showError(msg) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('errorBlock').style.display = 'block';
+            document.getElementById('errorDetails').textContent = msg;
+        }
+
+        async function loadProducts() {
+            try {
+                const res = await fetch('/api/products');
+                const data = await res.json();
+                allProducts = data.products || data;
+            } catch (e) {
+                console.log('Using mock products');
+                allProducts = mockProducts;
+            }
+            
+            renderCategories();
+            renderSubcategories();
+            filterProducts();
+        }
+
+        function getCategories() {
+            const categories = {};
+            allProducts.forEach(p => {
+                if (!categories[p.category]) {
+                    categories[p.category] = new Set();
+                }
+                categories[p.category].add(p.subcategory);
+            });
+            return categories;
+        }
+
+        function renderCategories() {
+            const el = document.getElementById('categories');
+            const categories = Object.keys(getCategories());
+            
+            el.innerHTML = `
+                <div class="cat-chip ${!state.selectedCategory ? 'active' : ''}" data-category="">Все</div>
+                ${categories.map(cat => `
+                    <div class="cat-chip ${state.selectedCategory === cat ? 'active' : ''}" data-category="${cat}">${cat}</div>
+                `).join('')}
+            `;
+        }
+
+        function renderSubcategories() {
+            const el = document.getElementById('subcategories');
+            
+            if (!state.selectedCategory) {
+                el.classList.remove('visible');
+                return;
+            }
+            
+            const categories = getCategories();
+            const subcategories = Array.from(categories[state.selectedCategory] || []);
+            
+            if (subcategories.length === 0) {
+                el.classList.remove('visible');
+                return;
+            }
+            
+            el.innerHTML = `
+                <div class="subcat-chip ${!state.selectedSubcategory ? 'active' : ''}" data-subcategory="">Все</div>
+                ${subcategories.map(sub => `
+                    <div class="subcat-chip ${state.selectedSubcategory === sub ? 'active' : ''}" data-subcategory="${sub}">${sub}</div>
+                `).join('')}
+            `;
+            el.classList.add('visible');
+        }
+
+        function filterProducts() {
+            let filtered = [...allProducts];
+            
+            if (state.selectedCategory) {
+                filtered = filtered.filter(p => p.category === state.selectedCategory);
+            }
+            
+            if (state.selectedSubcategory) {
+                filtered = filtered.filter(p => p.subcategory === state.selectedSubcategory);
+            }
+            
+            if (state.searchQuery) {
+                const query = state.searchQuery.toLowerCase();
+                filtered = filtered.filter(p => 
+                    p.title.toLowerCase().includes(query) ||
+                    p.description.toLowerCase().includes(query) ||
+                    p.game.toLowerCase().includes(query)
+                );
+            }
+            
+            switch (state.sortBy) {
+                case 'price-asc':
+                    filtered.sort((a, b) => a.price_stars - b.price_stars);
+                    break;
+                case 'price-desc':
+                    filtered.sort((a, b) => b.price_stars - a.price_stars);
+                    break;
+                case 'name':
+                    filtered.sort((a, b) => a.title.localeCompare(b.title));
+                    break;
+            }
+            
+            renderProducts(filtered);
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('productGrid');
+            const empty = document.getElementById('emptyState');
+            
+            if (products.length === 0) {
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+            
+            grid.style.display = 'grid';
+            empty.style.display = 'none';
+            
+            grid.innerHTML = products.map(p => `
+                <div class="card" data-id="${p.id}">
+                    <img class="card-img" src="${p.image}" alt="${p.title}">
+                    <div class="card-content">
+                        <div class="card-game">${p.game}</div>
+                        <div class="card-title">${p.title}</div>
+                        <div class="card-price">⭐ ${p.price_stars}</div>
+                        <div class="card-type">${p.type === 'single' ? '📦 Штучный' : '🔢 Мульти'}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showProductModal(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+            
+            currentProduct = product;
+            
+            document.getElementById('modalImg').src = product.image;
+            document.getElementById('modalTitle').textContent = product.title;
+            document.getElementById('modalMeta').innerHTML = `
+                <span>🎮 ${product.game}</span>
+                <span>📁 ${product.category}</span>
+                <span>${product.type === 'single' ? '📦 Штучный' : '🔢 Мульти'}</span>
+            `;
+            document.getElementById('modalDesc').textContent = product.description;
+            document.getElementById('modalPrice').textContent = `⭐ ${product.price_stars}`;
+            
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function initEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                state.searchQuery = e.target.value;
+                filterProducts();
+            });
+
+            document.getElementById('categories').addEventListener('click', (e) => {
+                const chip = e.target.closest('.cat-chip');
+                if (!chip) return;
+                
+                state.selectedCategory = chip.dataset.category || null;
+                state.selectedSubcategory = null;
+                
+                renderCategories();
+                renderSubcategories();
+                filterProducts();
+            });
+
+            document.getElementById('subcategories').addEventListener('click', (e) => {
+                const chip = e.target.closest('.subcat-chip');
+                if (!chip) return;
+                
+                state.selectedSubcategory = chip.dataset.subcategory || null;
+                
+                renderSubcategories();
+                filterProducts();
+            });
+
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    state.sortBy = e.target.dataset.sort;
+                    filterProducts();
+                });
+            });
+
+            document.getElementById('productGrid').addEventListener('click', (e) => {
+                const card = e.target.closest('.card');
+                if (!card) return;
+                
+                const productId = parseInt(card.dataset.id);
+                showProductModal(productId);
+            });
+
+            document.getElementById('closeModal').addEventListener('click', () => {
+                document.getElementById('modal').classList.remove('show');
+            });
+
+            document.getElementById('modal').addEventListener('click', (e) => {
+                if (e.target.id === 'modal') {
+                    document.getElementById('modal').classList.remove('show');
+                }
+            });
+
+            document.getElementById('buyBtn').addEventListener('click', async () => {
+                if (!currentProduct || !currentUser) {
+                    alert('Ошибка: пользователь не авторизован');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/create-invoice', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title: currentProduct.title,
+                            description: `Покупка: ${currentProduct.title}`,
+                            amount: currentProduct.price_stars,
+                            userId: currentUser.id
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.invoiceLink) {
+                        if (window.Telegram && Telegram.WebApp) {
+                            Telegram.WebApp.openInvoice(data.invoiceLink, (status) => {
+                                if (status === 'paid') {
+                                    alert('✅ Оплата прошла успешно!');
+                                    document.getElementById('modal').classList.remove('show');
+                                }
+                            });
+                        } else {
+                            window.open(data.invoiceLink, '_blank');
+                        }
+                    } else {
+                        alert('Ошибка создания платежа: ' + (data.error || 'Unknown error'));
+                    }
+                } catch (e) {
+                    console.error('Payment error:', e);
+                    alert('Ошибка при создании платежа');
+                }
+            });
+        }
+
+        window.addEventListener('load', () => {
+            setTimeout(initApp, 100);
+        });
+    </script>
+</body>
+</html>
