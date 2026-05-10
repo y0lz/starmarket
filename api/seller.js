@@ -1,7 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL || 'https://gjainivmaudjxmhgrcnp.supabase.co';
-const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqYWluaXZtYXVkanhtaGdyY25wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzAwNTEsImV4cCI6MjA5MzkwNjA1MX0._ZLO64J76Cfh8MQypJKbAe4Qw0ofPts_czZ0gRvmhfw';
+// Supabase configuration - ONLY from environment variables
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('❌ Missing SUPABASE_URL or SUPABASE_ANON_KEY environment variables');
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -16,16 +21,60 @@ export default async function handler(request, response) {
         title, 
         description, 
         price_stars, 
-        game, 
-        category, 
+        game_id, 
+        category_id, 
         subcategory, 
         image, 
         type, 
         stock 
       } = request.body;
 
-      if (!userId || !title || !description || !price_stars || !game || !category || !type) {
+      if (!userId || !title || !description || !price_stars || !game_id || !category_id || !type) {
         return response.status(400).json({ error: 'Missing required fields' });
+      }
+
+      // Валидация данных
+      if (title.length < 3 || title.length > 100) {
+        return response.status(400).json({ error: 'Title must be between 3 and 100 characters' });
+      }
+
+      if (description.length < 10 || description.length > 1000) {
+        return response.status(400).json({ error: 'Description must be between 10 and 1000 characters' });
+      }
+
+      const priceNum = parseInt(price_stars);
+      if (isNaN(priceNum) || priceNum < 1 || priceNum > 1000000) {
+        return response.status(400).json({ error: 'Price must be between 1 and 1,000,000 stars' });
+      }
+
+      const gameIdNum = parseInt(game_id);
+      const categoryIdNum = parseInt(category_id);
+      if (isNaN(gameIdNum) || isNaN(categoryIdNum) || gameIdNum < 1 || categoryIdNum < 1) {
+        return response.status(400).json({ error: 'Invalid game_id or category_id' });
+      }
+
+      if (!['single', 'multi'].includes(type)) {
+        return response.status(400).json({ error: 'Type must be "single" or "multi"' });
+      }
+
+      const stockNum = parseInt(stock) || (type === 'single' ? 1 : 0);
+      if (type === 'multi' && (isNaN(stockNum) || stockNum < 1 || stockNum > 10000)) {
+        return response.status(400).json({ error: 'Stock must be between 1 and 10,000 for multi-type products' });
+      }
+
+      // Валидация URL изображения (если указан)
+      if (image && image.length > 0) {
+        try {
+          const url = new URL(image);
+          if (!['http:', 'https:'].includes(url.protocol)) {
+            return response.status(400).json({ error: 'Image URL must use HTTP or HTTPS protocol' });
+          }
+          if (image.length > 500) {
+            return response.status(400).json({ error: 'Image URL is too long (max 500 characters)' });
+          }
+        } catch (e) {
+          return response.status(400).json({ error: 'Invalid image URL format' });
+        }
       }
 
       // Проверяем пользователя и его лимиты
@@ -62,15 +111,17 @@ export default async function handler(request, response) {
       const { data: product, error: productError } = await supabase
         .from('products')
         .insert([{
-          title,
-          description,
-          price_stars: parseInt(price_stars),
-          game,
-          category,
-          subcategory: subcategory || category,
-          image: image || `https://via.placeholder.com/300x200/667eea/FFFFFF?text=${encodeURIComponent(title.substring(0, 20))}`,
+          title: title.trim(),
+          description: description.trim(),
+          price_stars: priceNum,
+          game_id: gameIdNum,
+          category_id: categoryIdNum,
+          subcategory: subcategory ? subcategory.trim().substring(0, 100) : '',
+          image: image && image.trim().length > 0 
+            ? image.trim() 
+            : `https://via.placeholder.com/300x200/667eea/FFFFFF?text=${encodeURIComponent(title.substring(0, 20))}`,
           type,
-          stock: parseInt(stock) || (type === 'single' ? 1 : 0),
+          stock: stockNum,
           seller_id: userId,
           is_active: true,
           created_at: new Date().toISOString()
@@ -108,7 +159,11 @@ export default async function handler(request, response) {
 
       const { data: products, error } = await supabase
         .from('products')
-        .select('*')
+        .select(`
+          *,
+          game:games(id, name, slug, icon),
+          category:categories(id, name, slug, icon)
+        `)
         .eq('seller_id', userId)
         .order('created_at', { ascending: false });
 

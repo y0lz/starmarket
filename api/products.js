@@ -1,33 +1,37 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase configuration
-const supabaseUrl = process.env.SUPABASE_URL || 'https://gjainivmaudjxmhgrcnp.supabase.co';
-const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqYWluaXZtYXVkanhtaGdyY25wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzAwNTEsImV4cCI6MjA5MzkwNjA1MX0._ZLO64J76Cfh8MQypJKbAe4Qw0ofPts_czZ0gRvmhfw';
+// Supabase configuration - ONLY from environment variables
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('❌ Missing SUPABASE_URL or SUPABASE_ANON_KEY environment variables');
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(request, response) {
   try {
     // Получаем параметры фильтрации
-    const { game, category, subcategory, minPrice, maxPrice, sort, search } = request.query;
+    const { game_id, category_id, minPrice, maxPrice, sort, search } = request.query;
     
-    // Базовый запрос
+    // Базовый запрос с JOIN к играм и категориям
     let query = supabase
       .from('products')
-      .select('*')
+      .select(`
+        *,
+        game:games(id, name, slug, icon),
+        category:categories(id, name, slug, icon)
+      `)
       .eq('is_active', true);
     
     // Фильтры
-    if (game && game !== 'all') {
-      query = query.eq('game', game);
+    if (game_id && game_id !== 'all') {
+      query = query.eq('game_id', game_id);
     }
     
-    if (category && category !== 'all') {
-      query = query.eq('category', category);
-    }
-    
-    if (subcategory && subcategory !== 'all') {
-      query = query.eq('subcategory', subcategory);
+    if (category_id && category_id !== 'all') {
+      query = query.eq('category_id', category_id);
     }
     
     if (minPrice) {
@@ -46,7 +50,7 @@ export default async function handler(request, response) {
     
     // Поиск
     if (search) {
-      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,game.ilike.%${search}%`);
+      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
     }
     
     // Сортировка
@@ -68,10 +72,10 @@ export default async function handler(request, response) {
           query = query.order('seller_rating', { ascending: false });
           break;
         default:
-          query = query.order('sales_count', { ascending: false });
+          query = query.order('created_at', { ascending: false });
       }
     } else {
-      query = query.order('sales_count', { ascending: false });
+      query = query.order('created_at', { ascending: false });
     }
     
     // Выполняем запрос
@@ -79,161 +83,19 @@ export default async function handler(request, response) {
     
     if (error) {
       console.error('Supabase error:', error);
-      // Fallback на mock данные если БД недоступна
-      return response.status(200).json({ products: getMockProducts() });
+      return response.status(503).json({ 
+        error: 'Database temporarily unavailable',
+        products: [] 
+      });
     }
     
-    response.status(200).json({ products: data });
+    response.status(200).json({ products: data || [] });
     
   } catch (e) {
     console.error('API error:', e);
-    // Fallback на mock данные
-    response.status(200).json({ products: getMockProducts() });
+    return response.status(500).json({ 
+      error: 'Internal server error',
+      products: [] 
+    });
   }
-}
-
-// Mock данные как fallback
-function getMockProducts() {
-  return [
-    {
-      id: 1,
-      title: "Золото 1000 шт",
-      description: "Игровое золото для быстрого старта. Доставка моментальная после оплаты. Передача через внутриигровую почту. Безопасная сделка с гарантией.",
-      price_stars: 150,
-      game: "World of Warcraft",
-      category: "Валюта",
-      subcategory: "Золото",
-      image: "https://via.placeholder.com/300x200/FFD700/000000?text=Gold",
-      type: "multi",
-      stock: 50,
-      seller_rating: 4.9,
-      sales_count: 234
-    },
-    {
-      id: 2,
-      title: "Легендарный меч",
-      description: "Уникальный меч с уроном 500-750. Редкий дроп из рейда Ulduar. Только один экземпляр в наличии. Передача через внутриигровую почту после оплаты.",
-      price_stars: 500,
-      game: "World of Warcraft",
-      category: "Предметы",
-      subcategory: "Оружие",
-      image: "https://via.placeholder.com/300x200/8B0000/FFD700?text=Sword",
-      type: "single",
-      stock: 1,
-      seller_rating: 5.0,
-      sales_count: 12
-    },
-    {
-      id: 3,
-      title: "Аккаунт 80 lvl",
-      description: "Прокачанный аккаунт с максимальным уровнем. Полный набор эпической экипировки T10. Все профессии прокачаны до максимума. Репутация с основными фракциями на Exalted. Включает 5000 золота и редкие маунты.",
-      price_stars: 2000,
-      game: "World of Warcraft",
-      category: "Аккаунты",
-      subcategory: "Прокачанные",
-      image: "https://via.placeholder.com/300x200/4169E1/FFFFFF?text=Account",
-      type: "single",
-      stock: 1,
-      seller_rating: 4.8,
-      sales_count: 8
-    },
-    {
-      id: 4,
-      title: "Кристаллы 5000 шт",
-      description: "Премиум валюта для покупки эксклюзивных предметов в магазине. Моментальная доставка на аккаунт в течение 5 минут. Безопасная сделка через официальный API.",
-      price_stars: 300,
-      game: "Genshin Impact",
-      category: "Валюта",
-      subcategory: "Кристаллы",
-      image: "https://via.placeholder.com/300x200/9370DB/FFFFFF?text=Crystals",
-      type: "multi",
-      stock: 100,
-      seller_rating: 4.9,
-      sales_count: 456
-    },
-    {
-      id: 5,
-      title: "5★ персонаж",
-      description: "Случайный 5-звездочный персонаж из текущего баннера. Гарантированный дроп в течение 90 молитв. Передача через привязку аккаунта. Полная безопасность сделки.",
-      price_stars: 1500,
-      game: "Genshin Impact",
-      category: "Персонажи",
-      subcategory: "5 звезд",
-      image: "https://via.placeholder.com/300x200/FF69B4/FFFFFF?text=5★+Hero",
-      type: "single",
-      stock: 3,
-      seller_rating: 4.7,
-      sales_count: 23
-    },
-    {
-      id: 6,
-      title: "V-Bucks 13500",
-      description: "Премиум валюта Fortnite. Подходит для покупки Battle Pass и скинов в магазине. Код активации отправляется сразу после оплаты. Работает на всех платформах.",
-      price_stars: 800,
-      game: "Fortnite",
-      category: "Валюта",
-      subcategory: "V-Bucks",
-      image: "https://via.placeholder.com/300x200/7B68EE/FFFFFF?text=V-Bucks",
-      type: "multi",
-      stock: 30,
-      seller_rating: 4.9,
-      sales_count: 312
-    },
-    {
-      id: 7,
-      title: "Редкий скин Renegade Raider",
-      description: "Эксклюзивный скин из первого сезона Fortnite. Больше не доступен в магазине. Уникальная возможность получить легендарный скин. Передача через аккаунт Epic Games.",
-      price_stars: 1200,
-      game: "Fortnite",
-      category: "Косметика",
-      subcategory: "Скины",
-      image: "https://via.placeholder.com/300x200/FF4500/FFFFFF?text=Rare+Skin",
-      type: "single",
-      stock: 1,
-      seller_rating: 5.0,
-      sales_count: 5
-    },
-    {
-      id: 8,
-      title: "Робуксы 10000",
-      description: "Игровая валюта Roblox. Можно потратить на игры, предметы и апгрейды. Доставка кодом активации в течение 5 минут. Работает на всех платформах.",
-      price_stars: 600,
-      game: "Roblox",
-      category: "Валюта",
-      subcategory: "Робуксы",
-      image: "https://via.placeholder.com/300x200/E60012/FFFFFF?text=Robux",
-      type: "multi",
-      stock: 40,
-      seller_rating: 4.7,
-      sales_count: 267
-    },
-    {
-      id: 9,
-      title: "AK-47 Redline FT",
-      description: "Популярный скин AK-47 в состоянии Field-Tested. Чистый вид без царапин. Мгновенная передача через Steam трейд. Безопасная сделка с гарантией.",
-      price_stars: 450,
-      game: "CS2",
-      category: "Оружие",
-      subcategory: "Автоматы",
-      image: "https://via.placeholder.com/300x200/DC143C/FFFFFF?text=AK-47",
-      type: "single",
-      stock: 3,
-      seller_rating: 5.0,
-      sales_count: 89
-    },
-    {
-      id: 10,
-      title: "AWP Dragon Lore MW",
-      description: "Легендарный скин AWP Dragon Lore в состоянии Minimal Wear. Один из самых редких скинов в игре. Сертифицирован StatTrak™. Передача через Steam трейд.",
-      price_stars: 5000,
-      game: "CS2",
-      category: "Оружие",
-      subcategory: "Снайперские винтовки",
-      image: "https://via.placeholder.com/300x200/FFD700/8B0000?text=Dragon+Lore",
-      type: "single",
-      stock: 1,
-      seller_rating: 5.0,
-      sales_count: 3
-    }
-  ];
 }

@@ -5,348 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StarMarket — P2P Маркетплейс</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root {
-            --bg: #0d1117;
-            --card: #161b22;
-            --primary: #0088cc;
-            --accent: #ff9d00;
-            --text: #e6edf3;
-            --border: #30363d;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            padding-bottom: 20px;
-        }
-
-        .header {
-            position: sticky;
-            top: 0;
-            background: var(--bg);
-            z-index: 100;
-            padding: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 22px;
-            background: linear-gradient(90deg, #0088cc, #00d4ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .user-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 6px 14px 6px 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .user-btn:active {
-            opacity: 0.8;
-        }
-
-        .user-btn-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 700;
-            color: white;
-            flex-shrink: 0;
-        }
-
-        .user-btn-text {
-            font-size: 13px;
-            color: var(--text);
-            font-weight: 500;
-        }
-
-        .search-bar {
-            width: 100%;
-            padding: 10px 14px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text);
-            font-size: 15px;
-            margin-bottom: 12px;
-        }
-
-        .categories {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            margin-bottom: 8px;
-            scrollbar-width: none;
-        }
-
-        .categories::-webkit-scrollbar {
-            display: none;
-        }
-
-        .cat-chip {
-            background: var(--card);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 7px 14px;
-            border-radius: 18px;
-            white-space: nowrap;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-        }
-
-        .cat-chip.active {
-            background: var(--primary);
-            border-color: var(--primary);
-        }
-
-        .subcategories {
-            display: none;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-
-        .subcategories.visible {
-            display: flex;
-        }
-
-        .subcat-chip {
-            background: var(--card);
-            border: 1px solid var(--border);
-            color: #8b949e;
-            padding: 5px 12px;
-            border-radius: 14px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .subcat-chip.active {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: var(--text);
-        }
-
-        .sort-bar {
-            display: flex;
-            gap: 6px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-        }
-
-        .sort-btn {
-            background: var(--card);
-            border: 1px solid var(--border);
-            color: #8b949e;
-            padding: 5px 12px;
-            border-radius: 14px;
-            cursor: pointer;
-            font-size: 12px;
-            white-space: nowrap;
-        }
-
-        .sort-btn.active {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: var(--text);
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            padding: 16px;
-        }
-
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .card:active {
-            transform: scale(0.98);
-        }
-
-        .card-img {
-            width: 100%;
-            height: 130px;
-            object-fit: cover;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .card-content {
-            padding: 10px;
-        }
-
-        .card-game {
-            font-size: 10px;
-            color: #8b949e;
-            margin-bottom: 4px;
-        }
-
-        .card-title {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .card-price {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--accent);
-        }
-
-        .card-type {
-            font-size: 10px;
-            color: #8b949e;
-            margin-top: 4px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 1000;
-            overflow-y: auto;
-        }
-
-        .modal.show {
-            display: block;
-        }
-
-        .modal-content {
-            background: var(--card);
-            margin: 20px auto;
-            max-width: 500px;
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-        }
-
-        .modal-img {
-            width: 100%;
-            height: 240px;
-            object-fit: cover;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 10px;
-        }
-
-        .modal-title {
-            font-size: 19px;
-            font-weight: 700;
-            flex: 1;
-        }
-
-        .close-btn {
-            font-size: 26px;
-            color: #8b949e;
-            cursor: pointer;
-            line-height: 1;
-            padding: 0 8px;
-        }
-
-        .modal-meta {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 14px;
-            font-size: 12px;
-            color: #8b949e;
-            flex-wrap: wrap;
-        }
-
-        .modal-desc {
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 18px;
-            color: var(--text);
-        }
-
-        .modal-price {
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 14px;
-        }
-
-        .buy-btn {
-            width: 100%;
-            padding: 13px;
-            background: linear-gradient(135deg, #0088cc, #00b4ff);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 60px 20px;
-            color: #8b949e;
-        }
-
-        .empty {
-            text-align: center;
-            padding: 60px 20px;
-            color: #8b949e;
-        }
-
-        .empty-icon {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
     <div id="loading" class="loading">
@@ -354,6 +13,7 @@
     </div>
 
     <div id="app" style="display: none;">
+        <!-- Header -->
         <div class="header">
             <div class="header-top">
                 <h1>⭐ StarMarket</h1>
@@ -364,23 +24,56 @@
             </div>
             
             <input type="text" class="search-bar" placeholder="🔍 Поиск товаров..." id="searchInput">
-            
-            <div class="categories" id="categories"></div>
-            <div class="subcategories" id="subcategories"></div>
-            
-            <div class="sort-bar">
+        </div>
+
+        <!-- Carousel Banners -->
+        <div id="carouselSection" class="carousel-container">
+            <div class="carousel-wrapper" id="carouselWrapper">
+                <!-- Slides will be inserted here -->
+            </div>
+            <div class="carousel-dots" id="carouselDots"></div>
+        </div>
+
+        <!-- Games Catalog View -->
+        <div id="gamesView">
+            <div class="section-title">🎮 Выберите игру</div>
+            <div class="games-grid" id="gamesGrid"></div>
+        </div>
+
+        <!-- Game Detail View (hidden by default) -->
+        <div id="gameDetailView" style="display: none;">
+            <div class="game-detail-header">
+                <div class="game-detail-back" onclick="backToGames()">
+                    ← Назад к играм
+                </div>
+                <div class="game-detail-info">
+                    <div class="game-detail-icon" id="gameDetailIcon"></div>
+                    <div class="game-detail-text">
+                        <h2 id="gameDetailName"></h2>
+                        <p id="gameDetailCount"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories for selected game -->
+            <div class="section-title">Категории</div>
+            <div class="categories" id="gameCategories"></div>
+
+            <!-- Sort options -->
+            <div class="sort-bar" id="sortBar">
                 <div class="sort-btn active" data-sort="default">По умолчанию</div>
                 <div class="sort-btn" data-sort="price-asc">Цена ↑</div>
                 <div class="sort-btn" data-sort="price-desc">Цена ↓</div>
                 <div class="sort-btn" data-sort="name">По названию</div>
             </div>
-        </div>
 
-        <div class="grid" id="productGrid"></div>
-        
-        <div class="empty" id="emptyState" style="display: none;">
-            <div class="empty-icon">🔍</div>
-            <div>Товары не найдены</div>
+            <!-- Products Grid -->
+            <div class="grid" id="productGrid"></div>
+            
+            <div class="empty" id="emptyState" style="display: none;">
+                <div class="empty-icon">🔍</div>
+                <div>Товары не найдены</div>
+            </div>
         </div>
     </div>
 
@@ -422,12 +115,35 @@
         let currentUser = null;
         let currentProduct = null;
         let allProducts = [];
+        let currentGame = null;
         let state = {
             selectedCategory: null,
-            selectedSubcategory: null,
             searchQuery: '',
             sortBy: 'default'
         };
+
+        // Carousel data
+        const banners = [
+            {
+                title: '🎉 Добро пожаловать в StarMarket',
+                subtitle: 'P2P маркетплейс игровых товаров',
+                gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+            },
+            {
+                title: '⭐ Оплата через Telegram Stars',
+                subtitle: 'Быстро, безопасно, удобно',
+                gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+            },
+            {
+                title: '🎮 Товары для всех игр',
+                subtitle: 'Валюта, аккаунты, предметы и многое другое',
+                gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+            }
+        ];
+
+        // Games and categories from backend
+        let games = [];
+        let categories = [];
 
         // Mock products with detailed info
         const mockProducts = [
@@ -599,7 +315,9 @@
                 document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
             }
 
+            initCarousel();
             loadProducts();
+            renderGames();
             initEventListeners();
         }
 
@@ -616,6 +334,18 @@
 
         async function loadProducts() {
             try {
+                // Load games and categories from backend
+                const gamesRes = await fetch('/api/games');
+                const gamesData = await gamesRes.json();
+                
+                if (gamesData.ok) {
+                    games = gamesData.games || [];
+                    categories = gamesData.categories || [];
+                    console.log('Loaded games from backend:', games);
+                    console.log('Loaded categories from backend:', categories);
+                }
+
+                // Load products
                 const res = await fetch('/api/products');
                 const data = await res.json();
                 allProducts = data.products || data;
@@ -623,77 +353,179 @@
                 console.log('Using mock products');
                 allProducts = mockProducts;
             }
+
+            renderGames();
+        }
+
+        // Carousel functions
+        let currentSlide = 0;
+        let carouselInterval;
+
+        function initCarousel() {
+            const wrapper = document.getElementById('carouselWrapper');
+            const dots = document.getElementById('carouselDots');
             
-            renderCategories();
-            renderSubcategories();
+            wrapper.innerHTML = banners.map((banner, index) => `
+                <div class="carousel-slide" style="background: ${banner.gradient}">
+                    <div class="carousel-content">
+                        <div class="carousel-title">${banner.title}</div>
+                        <div class="carousel-subtitle">${banner.subtitle}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            dots.innerHTML = banners.map((_, index) => `
+                <div class="carousel-dot ${index === 0 ? 'active' : ''}" onclick="goToSlide(${index})"></div>
+            `).join('');
+
+            startCarousel();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateCarousel();
+        }
+
+        function updateCarousel() {
+            const wrapper = document.getElementById('carouselWrapper');
+            const dots = document.querySelectorAll('.carousel-dot');
+            
+            wrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % banners.length;
+            updateCarousel();
+        }
+
+        function startCarousel() {
+            carouselInterval = setInterval(nextSlide, 4000);
+        }
+
+        function stopCarousel() {
+            clearInterval(carouselInterval);
+        }
+
+        // Games catalog functions
+        function renderGames() {
+            const grid = document.getElementById('gamesGrid');
+            
+            if (games.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🎮</div><div>Нет доступных игр</div></div>';
+                return;
+            }
+
+            // Filter games that have products
+            const gamesWithProducts = games.filter(game => game.product_count > 0);
+
+            if (gamesWithProducts.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🎮</div><div>Нет доступных игр</div></div>';
+                return;
+            }
+
+            grid.innerHTML = gamesWithProducts.map(game => {
+                return `
+                    <div class="game-card" onclick="selectGame(${game.id})">
+                        <div class="game-card-icon">${game.icon}</div>
+                        <div class="game-card-name">${game.name}</div>
+                        <div class="game-card-count">${game.product_count} товаров</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectGame(gameId) {
+            const game = games.find(g => g.id === gameId);
+            if (!game) return;
+
+            currentGame = game;
+            
+            // Hide games view, show game detail view
+            document.getElementById('gamesView').style.display = 'none';
+            document.getElementById('carouselSection').style.display = 'none';
+            document.getElementById('gameDetailView').style.display = 'block';
+
+            // Update game detail header
+            document.getElementById('gameDetailIcon').innerHTML = game.icon;
+            document.getElementById('gameDetailName').textContent = game.name;
+            document.getElementById('gameDetailCount').textContent = `${game.product_count} товаров`;
+
+            // Render categories for this game
+            renderGameCategories(gameId);
+            
+            // Reset state and show all products for this game
+            state.selectedCategory = null;
+            state.sortBy = 'default';
+            
+            // Reset sort buttons
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.sort === 'default');
+            });
+            
             filterProducts();
         }
 
-        function getCategories() {
-            const categories = {};
-            allProducts.forEach(p => {
-                if (!categories[p.category]) {
-                    categories[p.category] = new Set();
-                }
-                categories[p.category].add(p.subcategory);
-            });
-            return categories;
+        function backToGames() {
+            currentGame = null;
+            state.selectedCategory = null;
+            
+            document.getElementById('gamesView').style.display = 'block';
+            document.getElementById('carouselSection').style.display = 'block';
+            document.getElementById('gameDetailView').style.display = 'none';
         }
 
-        function renderCategories() {
-            const el = document.getElementById('categories');
-            const categories = Object.keys(getCategories());
+        function renderGameCategories(gameId) {
+            const container = document.getElementById('gameCategories');
+            const gameProducts = allProducts.filter(p => p.game_id === gameId);
             
-            el.innerHTML = `
-                <div class="cat-chip ${!state.selectedCategory ? 'active' : ''}" data-category="">Все</div>
-                ${categories.map(cat => `
-                    <div class="cat-chip ${state.selectedCategory === cat ? 'active' : ''}" data-category="${cat}">${cat}</div>
+            // Get unique categories for this game
+            const categoriesInGame = new Set(gameProducts.map(p => p.category_id).filter(id => id));
+            const availableCategories = categories.filter(cat => categoriesInGame.has(cat.id));
+
+            if (availableCategories.length === 0) {
+                container.innerHTML = '<div class="cat-chip active">Все</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="cat-chip ${!state.selectedCategory ? 'active' : ''}" onclick="selectCategory(null)">
+                    Все
+                </div>
+                ${availableCategories.map(cat => `
+                    <div class="cat-chip ${state.selectedCategory === cat.id ? 'active' : ''}" 
+                         onclick="selectCategory(${cat.id})">
+                        ${cat.icon} ${cat.name}
+                    </div>
                 `).join('')}
             `;
         }
 
-        function renderSubcategories() {
-            const el = document.getElementById('subcategories');
-            
-            if (!state.selectedCategory) {
-                el.classList.remove('visible');
-                return;
-            }
-            
-            const categories = getCategories();
-            const subcategories = Array.from(categories[state.selectedCategory] || []);
-            
-            if (subcategories.length === 0) {
-                el.classList.remove('visible');
-                return;
-            }
-            
-            el.innerHTML = `
-                <div class="subcat-chip ${!state.selectedSubcategory ? 'active' : ''}" data-subcategory="">Все</div>
-                ${subcategories.map(sub => `
-                    <div class="subcat-chip ${state.selectedSubcategory === sub ? 'active' : ''}" data-subcategory="${sub}">${sub}</div>
-                `).join('')}
-            `;
-            el.classList.add('visible');
+        function selectCategory(categoryId) {
+            state.selectedCategory = categoryId;
+            renderGameCategories(currentGame.id);
+            filterProducts();
         }
 
         function filterProducts() {
-            let filtered = [...allProducts];
+            if (!currentGame) {
+                return;
+            }
+
+            let filtered = allProducts.filter(p => p.game_id === currentGame.id);
             
             if (state.selectedCategory) {
-                filtered = filtered.filter(p => p.category === state.selectedCategory);
-            }
-            
-            if (state.selectedSubcategory) {
-                filtered = filtered.filter(p => p.subcategory === state.selectedSubcategory);
+                filtered = filtered.filter(p => p.category_id === state.selectedCategory);
             }
             
             if (state.searchQuery) {
                 const query = state.searchQuery.toLowerCase();
                 filtered = filtered.filter(p => 
                     p.title.toLowerCase().includes(query) ||
-                    p.description.toLowerCase().includes(query) ||
-                    p.game.toLowerCase().includes(query)
+                    p.description.toLowerCase().includes(query)
                 );
             }
             
@@ -725,17 +557,23 @@
             grid.style.display = 'grid';
             empty.style.display = 'none';
             
-            grid.innerHTML = products.map(p => `
-                <div class="card" data-id="${p.id}">
-                    <img class="card-img" src="${p.image}" alt="${p.title}">
-                    <div class="card-content">
-                        <div class="card-game">${p.game}</div>
-                        <div class="card-title">${p.title}</div>
-                        <div class="card-price">⭐ ${p.price_stars}</div>
-                        <div class="card-type">${p.type === 'single' ? '📦 Штучный' : '🔢 Мульти'}</div>
+            grid.innerHTML = products.map(p => {
+                // Get game and category names from joined data
+                const gameName = p.game?.name || p.game || 'Unknown';
+                const categoryName = p.category?.name || p.category || 'Unknown';
+                
+                return `
+                    <div class="card" data-id="${p.id}">
+                        <img class="card-img" src="${p.image}" alt="${p.title}">
+                        <div class="card-content">
+                            <div class="card-game">${gameName}</div>
+                            <div class="card-title">${p.title}</div>
+                            <div class="card-price">⭐ ${p.price_stars}</div>
+                            <div class="card-type">${p.type === 'single' ? '📦 Штучный' : '🔢 Мульти'}</div>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function showProductModal(productId) {
@@ -744,11 +582,15 @@
             
             currentProduct = product;
             
+            // Get game and category names from joined data
+            const gameName = product.game?.name || product.game || 'Unknown';
+            const categoryName = product.category?.name || product.category || 'Unknown';
+            
             document.getElementById('modalImg').src = product.image;
             document.getElementById('modalTitle').textContent = product.title;
             document.getElementById('modalMeta').innerHTML = `
-                <span>🎮 ${product.game}</span>
-                <span>📁 ${product.category}</span>
+                <span>🎮 ${gameName}</span>
+                <span>📁 ${categoryName}</span>
                 <span>${product.type === 'single' ? '📦 Штучный' : '🔢 Мульти'}</span>
             `;
             document.getElementById('modalDesc').textContent = product.description;
@@ -760,29 +602,9 @@
         function initEventListeners() {
             document.getElementById('searchInput').addEventListener('input', (e) => {
                 state.searchQuery = e.target.value;
-                filterProducts();
-            });
-
-            document.getElementById('categories').addEventListener('click', (e) => {
-                const chip = e.target.closest('.cat-chip');
-                if (!chip) return;
-                
-                state.selectedCategory = chip.dataset.category || null;
-                state.selectedSubcategory = null;
-                
-                renderCategories();
-                renderSubcategories();
-                filterProducts();
-            });
-
-            document.getElementById('subcategories').addEventListener('click', (e) => {
-                const chip = e.target.closest('.subcat-chip');
-                if (!chip) return;
-                
-                state.selectedSubcategory = chip.dataset.subcategory || null;
-                
-                renderSubcategories();
-                filterProducts();
+                if (currentGame) {
+                    filterProducts();
+                }
             });
 
             document.querySelectorAll('.sort-btn').forEach(btn => {
@@ -790,7 +612,9 @@
                     document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
                     e.target.classList.add('active');
                     state.sortBy = e.target.dataset.sort;
-                    filterProducts();
+                    if (currentGame) {
+                        filterProducts();
+                    }
                 });
             });
 
@@ -850,6 +674,13 @@
                     console.error('Payment error:', e);
                     alert('Ошибка при создании платежа');
                 }
+            });
+
+            // Pause carousel on user interaction
+            const carouselContainer = document.getElementById('carouselSection');
+            carouselContainer.addEventListener('touchstart', stopCarousel);
+            carouselContainer.addEventListener('touchend', () => {
+                setTimeout(startCarousel, 3000);
             });
         }
 

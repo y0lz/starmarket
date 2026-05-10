@@ -1,7 +1,12 @@
 const TelegramBot = require('node-telegram-bot-api');
 
 // Токен бота @PodiumTaskBot
-const token = process.env.TELEGRAM_BOT_TOKEN || '8325504889:AAHry7Yi4FNjgd0WG_ANcJeeZQpBmwFZhr8';
+const token = process.env.TELEGRAM_BOT_TOKEN;
+if (!token) {
+  console.error('❌ TELEGRAM_BOT_TOKEN is not set in environment variables!');
+  process.exit(1);
+}
+
 const bot = new TelegramBot(token, { polling: true });
 
 // Vercel deployment URL
