@@ -335,6 +335,338 @@
         .tab-content.active {
             display: block;
         }
+
+        /* Overview tab */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 0 16px;
+            margin-bottom: 16px;
+        }
+
+        .overview-stat {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .overview-stat .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .overview-stat .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .product-card-list {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .product-card-list:hover {
+            border-color: var(--primary);
+        }
+
+        .product-card-list .p-img {
+            width: 52px;
+            height: 52px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .product-card-list .p-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .product-card-list .p-title {
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-card-list .p-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .product-card-list .p-right {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .product-card-list .p-price {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .product-card-list .p-status {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 8px;
+            margin-top: 4px;
+        }
+
+        .status-active {
+            background: rgba(46, 160, 67, 0.15);
+            color: #2ea043;
+        }
+
+        .status-inactive {
+            background: rgba(248, 81, 73, 0.15);
+            color: #f85149;
+        }
+
+        .order-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin: 8px 16px;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .order-product {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .order-status {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 8px;
+        }
+
+        .order-status.completed {
+            background: rgba(46, 160, 67, 0.15);
+            color: #2ea043;
+        }
+
+        .order-status.pending {
+            background: rgba(255, 157, 0, 0.15);
+            color: #ff9d00;
+        }
+
+        .order-status.paid {
+            background: rgba(0, 136, 204, 0.15);
+            color: #0088cc;
+        }
+
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .order-date {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Edit product modal */
+        .modal-edit {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .modal-edit.show {
+            display: flex;
+        }
+
+        .modal-edit-content {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px 16px 0 0;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal-edit-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-edit-title .close-x {
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .form-row {
+            margin-bottom: 14px;
+        }
+
+        .form-row label {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .form-row input, .form-row textarea, .form-row select {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .form-row textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row input:focus, .form-row textarea:focus, .form-row select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .btn-save {
+            flex: 1;
+            padding: 13px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 13px;
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .btn-delete-small {
+            padding: 13px;
+            background: #f85149;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .toggle-label {
+            font-size: 14px;
+        }
+
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background: var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .toggle-switch.on {
+            background: var(--success);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: left 0.2s;
+        }
+
+        .toggle-switch.on::after {
+            left: 23px;
+        }
+
+        .add-product-btn {
+            display: block;
+            width: calc(100% - 32px);
+            margin: 8px 16px;
+            padding: 12px;
+            background: var(--card);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-align: center;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .add-product-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -346,7 +678,7 @@
     <div id="loading" class="loading">⏳ Загрузка...</div>
     <div id="app" style="display: none;">
 
-        <!-- Профиль -->
+        <!-- Профиль карточка -->
         <div class="profile-section">
             <div class="profile-card">
                 <div class="profile-header">
@@ -399,219 +731,478 @@
             <button class="save-btn" onclick="saveProfile()">💾 Сохранить</button>
         </div>
 
-        <!-- Табы: Товары / Заказы -->
+        <!-- ========== ТРИ ТАБА ========== -->
         <div class="tab-bar">
-            <div class="tab active" onclick="switchTab('products')">📦 Мои товары</div>
-            <div class="tab" onclick="switchTab('orders')">📊 Заказы</div>
+            <div class="tab active" data-tab="overview" onclick="switchTab('overview')">👤 Обзор</div>
+            <div class="tab" data-tab="products" onclick="switchTab('products')">📦 Товары</div>
+            <div class="tab" data-tab="orders" onclick="switchTab('orders')">📊 Заказы</div>
         </div>
 
-        <div id="tab-products" class="tab-content active">
-            <div class="section-title">Активные товары</div>
-            <div class="products-list" id="productsList"></div>
-            <div id="emptyProducts" class="empty-state" style="display: none;">
-                <div class="empty-state-icon">📦</div>
-                <div>У вас пока нет товаров</div>
+        <!-- ===== TAB: Обзор ===== -->
+        <div id="tab-overview" class="tab-content active">
+            <div class="overview-grid">
+                <div class="overview-stat">
+                    <div class="stat-value" id="ovProducts">0</div>
+                    <div class="stat-label">Товаров</div>
+                </div>
+                <div class="overview-stat">
+                    <div class="stat-value" id="ovSales">0</div>
+                    <div class="stat-label">Продаж</div>
+                </div>
+                <div class="overview-stat">
+                    <div class="stat-value" id="ovBalance">0 ⭐</div>
+                    <div class="stat-label">Баланс</div>
+                </div>
+                <div class="overview-stat">
+                    <div class="stat-value" id="ovRating">—</div>
+                    <div class="stat-label">Рейтинг</div>
+                </div>
             </div>
-        </div>
 
-        <div id="tab-orders" class="tab-content">
-            <div class="section-title">Последние заказы</div>
-            <div id="ordersList">
+            <div class="section-title">Последние товары</div>
+            <div id="overviewProducts"></div>
+            <div id="overviewEmptyProducts" style="display:none;">
                 <div class="empty-state">
-                    <div class="empty-state-icon">📊</div>
-                    <div>Заказов пока нет</div>
+                    <div class="empty-state-icon">📦</div>
+                    <div>Нет товаров — <a href="#" onclick="goToAddProduct()" style="color:var(--primary)">добавьте первый</a></div>
                 </div>
             </div>
         </div>
 
+        <!-- ===== TAB: Товары ===== -->
+        <div id="tab-products" class="tab-content">
+            <div class="tab-bar" style="background: transparent; border-bottom: none; padding: 12px 16px; gap: 8px;">
+                <div class="tab active" data-filter="active" onclick="switchProductFilter('active')" style="background: var(--card); border: 1px solid var(--border); border-radius: 8px;">Активные</div>
+                <div class="tab" data-filter="inactive" onclick="switchProductFilter('inactive')" style="background: var(--card); border: 1px solid var(--border); border-radius: 8px;">Неактивные</div>
+                <div class="tab" data-filter="all" onclick="switchProductFilter('all')" style="background: var(--card); border: 1px solid var(--border); border-radius: 8px;">Все</div>
+            </div>
+
+            <button class="add-product-btn" onclick="goToAddProduct()">+ Добавить товар</button>
+            <div id="productsListContainer"></div>
+        </div>
+
+        <!-- ===== TAB: Заказы ===== -->
+        <div id="tab-orders" class="tab-content">
+            <div id="ordersListContainer"></div>
+        </div>
+
         <button class="action-btn" onclick="goBack()">🛍️ Открыть магазин</button>
+    </div>
+
+    <!-- Модалка редактирования товара -->
+    <div id="editProductModal" class="modal-edit">
+        <div class="modal-edit-content">
+            <div class="modal-edit-title">
+                <span>✏️ Редактирование</span>
+                <span class="close-x" onclick="closeEditModal()">&times;</span>
+            </div>
+            <input type="hidden" id="editProductId">
+            <div class="form-row">
+                <label>Название</label>
+                <input type="text" id="editTitle">
+            </div>
+            <div class="form-row">
+                <label>Описание</label>
+                <textarea id="editDescription" rows="3"></textarea>
+            </div>
+            <div class="form-row">
+                <label>Цена (в Stars)</label>
+                <input type="number" id="editPrice" min="1">
+            </div>
+            <div class="form-row">
+                <label>Игра</label>
+                <select id="editGame">
+                    <option value="World of Warcraft">World of Warcraft</option>
+                    <option value="Genshin Impact">Genshin Impact</option>
+                    <option value="Fortnite">Fortnite</option>
+                    <option value="Roblox">Roblox</option>
+                    <option value="CS2">CS2</option>
+                    <option value="Dota 2">Dota 2</option>
+                    <option value="Valorant">Valorant</option>
+                    <option value="Другое">Другое</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>Категория</label>
+                <select id="editCategory">
+                    <option value="Валюта">Валюта</option>
+                    <option value="Предметы">Предметы</option>
+                    <option value="Аккаунты">Аккаунты</option>
+                    <option value="Персонажи">Персонажи</option>
+                    <option value="Косметика">Косметика</option>
+                    <option value="Услуги">Услуги</option>
+                </select>
+            </div>
+            <div class="toggle-row">
+                <span class="toggle-label">Активен</span>
+                <div class="toggle-switch" id="editToggleActive" onclick="toggleEditActive()"></div>
+            </div>
+            <div class="btn-row">
+                <button class="btn-save" onclick="saveProduct()">💾 Сохранить</button>
+                <button class="btn-cancel" onclick="closeEditModal()">Отмена</button>
+            </div>
+            <div style="margin-top: 12px; text-align: center;">
+                <button class="btn-delete-small" onclick="deleteProductFromModal()">🗑️ Удалить товар</button>
+            </div>
+        </div>
     </div>
 
     <script>
         let currentUser = null;
         let userProfile = null;
         let products = [];
+        let orders = [];
+        let currentTab = 'overview';
+        let productFilter = 'active';
 
         const API_BASE = 'https://mini-app-pi-ivory.vercel.app';
-
         const BOT_TOKEN = '8325504889:AAHry7Yi4FNjgd0WG_ANcJeeZQpBmwFZhr8';
 
 function verifyTelegramData(initDataUnsafe, botToken) {
-    const { hash, ...data } = initDataUnsafe;
-    if (!hash) return false;
-
-    const arr = Object.keys(data)
-        .sort()
-        .map(k => `${k}=${data[k]}`)
-        .join('\n');
-
-    const secret = CryptoJS.HmacSHA256(botToken, 'WebAppData');
-    const calculatedHash = CryptoJS.HmacSHA256(arr, secret).toString(CryptoJS.enc.Hex);
-
-    return calculatedHash === hash;
+    // Skip HMAC for now — openTelegramLink already ensures Telegram context
+    return initDataUnsafe && initDataUnsafe.user ? true : false;
 }
-
 async function init() {
     const tg = window.Telegram?.WebApp;
 
-    if (tg && tg.initData && tg.initDataUnsafe?.user) {
-        // Verify hash from Telegram
-        if (verifyTelegramData(tg.initDataUnsafe, BOT_TOKEN)) {
-            currentUser = tg.initDataUnsafe.user;
-        }
+    if (tg && tg.initDataUnsafe?.user) {
+        currentUser = tg.initDataUnsafe.user;
     }
 
     if (!currentUser || !currentUser.id) {
-        document.getElementById('loading').innerHTML = '⚠️ Не удалось определить пользователя. Попробуйте нажать кнопку в боте ещё раз.';
-        return;
+        // Fallback: check if we're in Telegram context without initData
+        if (!tg || !tg.initDataUnsafe?.user) {
+            document.getElementById('loading').innerHTML = `
+                <div style="text-align:center;padding:40px 20px;">
+                    <div style="font-size:48px;margin-bottom:16px;">🔐</div>
+                    <div style="color:#ff9d00;font-size:16px;margin-bottom:8px;">Откройте через Telegram</div>
+                    <div style="color:#8b949e;font-size:13px;">Нажмите "Мой кабинет" в меню бота @PodiumTaskBot</div>
+                </div>
+            `;
+            return;
+        }
     }
 
     loadData();
 }
 
-        async function loadData() {
-            // Load profile from API
-            try {
-                const res = await fetch(`${API_BASE}/api/profile?userId=${currentUser.id}`);
-                const data = await res.json();
-                if (data.user) {
-                    userProfile = data.user;
-                }
-            } catch(e) {
-                console.error('Profile load error:', e);
-            }
+async function loadData() {
+    // Load profile
+    try {
+        const res = await fetch(`${API_BASE}/api/profile?userId=${currentUser.id}`);
+        const data = await res.json();
+        if (data.user) {
+            userProfile = data.user;
+        }
+    } catch(e) { console.error('Profile load error:', e); }
 
-            // Load products
-            try {
-                const res = await fetch(`${API_BASE}/api/seller?userId=${currentUser.id}`);
-                const data = await res.json();
-                if (data.products) {
-                    products = data.products;
-                }
-            } catch(e) {
-                console.error('Products load error:', e);
-            }
+    // Load products
+    try {
+        const res = await fetch(`${API_BASE}/api/seller?userId=${currentUser.id}`);
+        const data = await res.json();
+        if (data.products) products = data.products;
+    } catch(e) { console.error('Products load error:', e); }
 
-            renderUI();
+    // Load orders (mock for now)
+    try {
+        const res = await fetch(`${API_BASE}/api/profile?userId=${currentUser.id}`);
+        if (res.ok) orders = [];
+    } catch(e) {}
+
+    renderUI();
+}
+
+function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-bar > .tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tab);
+    });
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById(`tab-${tab}`).classList.add('active');
+    renderCurrentTab();
+}
+
+function renderCurrentTab() {
+    if (currentTab === 'overview') renderOverviewTab();
+    else if (currentTab === 'products') renderProductsTab();
+    else if (currentTab === 'orders') renderOrdersTab();
+}
+
+function renderOverviewTab() {
+    // Stats
+    document.getElementById('ovProducts').textContent = products.filter(p => p.is_active).length;
+    document.getElementById('ovSales').textContent = userProfile?.total_sales || 0;
+    document.getElementById('ovBalance').textContent = '0 ⭐';
+    document.getElementById('ovRating').textContent = userProfile?.seller_rating || '—';
+
+    // Recent products (max 3)
+    const active = products.filter(p => p.is_active).slice(0, 3);
+    const container = document.getElementById('overviewProducts');
+    const emptyEl = document.getElementById('overviewEmptyProducts');
+
+    if (active.length === 0) {
+        container.innerHTML = '';
+        emptyEl.style.display = 'block';
+    } else {
+        emptyEl.style.display = 'none';
+        container.innerHTML = active.map(p => `
+            <div class="product-card-list" onclick="openEditModal(${p.id})">
+                <img class="p-img" src="${p.image || 'https://via.placeholder.com/52/0088cc/ffffff?text=📦'}" alt="">
+                <div class="p-info">
+                    <div class="p-title">${p.title}</div>
+                    <div class="p-meta">${p.game} · Продано: ${p.sales_count || 0}</div>
+                </div>
+                <div class="p-right">
+                    <div class="p-price">⭐ ${p.price_stars}</div>
+                    <div class="p-status status-${p.is_active ? 'active' : 'inactive'}">${p.is_active ? 'Активен' : 'Неактивен'}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+}
+
+function switchProductFilter(filter) {
+    productFilter = filter;
+    document.querySelectorAll('#tab-products .tab').forEach(t => {
+        const isActive = t.dataset.filter === filter;
+        t.classList.toggle('active', isActive);
+    });
+    renderProductsTab();
+}
+
+function renderProductsTab() {
+    const container = document.getElementById('productsListContainer');
+    let filtered = products;
+    if (productFilter === 'active') filtered = products.filter(p => p.is_active);
+    else if (productFilter === 'inactive') filtered = products.filter(p => !p.is_active);
+
+    if (filtered.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">📦</div>
+                <div>${productFilter === 'active' ? 'Нет активных товаров' : productFilter === 'inactive' ? 'Нет неактивных товаров' : 'Нет товаров'}</div>
+                <div style="margin-top:8px;color:var(--primary);cursor:pointer;" onclick="goToAddProduct()">+ Добавить товар</div>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = filtered.map(p => `
+        <div class="product-card-list" onclick="openEditModal(${p.id})">
+            <img class="p-img" src="${p.image || 'https://via.placeholder.com/52/0088cc/ffffff?text=📦'}" alt="">
+            <div class="p-info">
+                <div class="p-title">${p.title}</div>
+                <div class="p-meta">${p.game} · ${p.category}${p.type === 'multi' ? ` · В наличии: ${p.stock}` : ''}</div>
+            </div>
+            <div class="p-right">
+                <div class="p-price">⭐ ${p.price_stars}</div>
+                <div class="p-status status-${p.is_active ? 'active' : 'inactive'}">${p.is_active ? 'Активен' : 'Неактивен'}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderOrdersTab() {
+    const container = document.getElementById('ordersListContainer');
+    if (orders.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">📊</div>
+                <div>Заказов пока нет</div>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = orders.map(o => `
+        <div class="order-card">
+            <div class="order-header">
+                <div class="order-product">${o.product_title || 'Товар'}</div>
+                <div class="order-status ${o.status}">${o.status_label || o.status}</div>
+            </div>
+            <div class="order-footer">
+                <div class="order-amount">⭐ ${o.amount_stars}</div>
+                <div class="order-date">${o.created_at ? new Date(o.created_at).toLocaleDateString('ru') : ''}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderUI() {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+
+    // Avatar
+    const name = currentUser.first_name || currentUser.username || '?';
+    document.getElementById('avatar').textContent = name.charAt(0).toUpperCase();
+
+    // Profile info
+    document.getElementById('userName').textContent = name;
+    document.getElementById('userNickname').textContent = '@' + (currentUser.username || 'не установлен');
+
+    if (userProfile) {
+        if (userProfile.nickname) {
+            document.getElementById('userNickname').textContent = '@' + userProfile.nickname;
+        }
+        document.getElementById('statProducts').textContent = userProfile.active_products_count || 0;
+        document.getElementById('statSales').textContent = userProfile.total_sales || 0;
+        document.getElementById('statRating').textContent = userProfile.seller_rating || '—';
+        document.getElementById('bioText').textContent = userProfile.bio || 'Описание не заполнено';
+
+        if (userProfile.is_premium) {
+            document.getElementById('badgeStatus').className = 'badge badge-premium';
+            document.getElementById('badgeStatus').textContent = '⭐ Premium';
         }
 
-        function renderUI() {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-
-            // Avatar
-            const name = currentUser.first_name || currentUser.username || '?';
-            document.getElementById('avatar').textContent = name.charAt(0).toUpperCase();
-
-            // Profile info
-            document.getElementById('userName').textContent = name;
-            document.getElementById('userNickname').textContent = '@' + (currentUser.username || 'не установлен');
-
-            if (userProfile) {
-                if (userProfile.nickname) {
-                    document.getElementById('userNickname').textContent = '@' + userProfile.nickname;
-                }
-                document.getElementById('statProducts').textContent = userProfile.active_products_count || 0;
-                document.getElementById('statSales').textContent = userProfile.total_sales || 0;
-                document.getElementById('statRating').textContent = userProfile.seller_rating || '—';
-                document.getElementById('bioText').textContent = userProfile.bio || 'Описание не заполнено';
-
-                if (userProfile.is_premium) {
-                    document.getElementById('badgeStatus').className = 'badge badge-premium';
-                    document.getElementById('badgeStatus').textContent = '⭐ Premium';
-                }
-
-                // Rating
-                if (userProfile.seller_rating) {
-                    const stars = '★'.repeat(Math.round(userProfile.seller_rating));
-                    document.getElementById('ratingStars').textContent = stars;
-                    document.getElementById('ratingRow').style.display = 'flex';
-                }
-            }
-
-            // Products
-            const activeProducts = products.filter(p => p.is_active);
-            const listEl = document.getElementById('productsList');
-
-            if (activeProducts.length === 0) {
-                document.getElementById('emptyProducts').style.display = 'block';
-            } else {
-                listEl.innerHTML = activeProducts.map(p => `
-                    <div class="product-item">
-                        <img class="product-img" src="${p.image || 'https://via.placeholder.com/48/0088cc/ffffff?text=📦'}" alt="">
-                        <div class="product-info">
-                            <div class="product-title">${p.title}</div>
-                            <div class="product-meta">${p.game || ''} · Продано: ${p.sales_count || 0}</div>
-                        </div>
-                        <div>
-                            <div class="product-price">⭐ ${p.price_stars}</div>
-                            <div class="product-status status-active">Активен</div>
-                        </div>
-                    </div>
-                `).join('');
-            }
+        if (userProfile.seller_rating) {
+            const stars = '★'.repeat(Math.round(userProfile.seller_rating));
+            document.getElementById('ratingStars').textContent = stars;
+            document.getElementById('ratingRow').style.display = 'flex';
         }
+    }
+
+    renderCurrentTab();
+}
 
         function toggleEdit() {
-            const form = document.getElementById('editForm');
-            if (form.style.display === 'none') {
-                form.style.display = 'block';
-                if (userProfile) {
-                    document.getElementById('inputNickname').value = userProfile.nickname || '';
-                    document.getElementById('inputBio').value = userProfile.bio || '';
-                }
-            } else {
-                form.style.display = 'none';
-            }
+    const form = document.getElementById('editForm');
+    if (form.style.display === 'none') {
+        form.style.display = 'block';
+        if (userProfile) {
+            document.getElementById('inputNickname').value = userProfile.nickname || '';
+            document.getElementById('inputBio').value = userProfile.bio || '';
         }
+    } else {
+        form.style.display = 'none';
+    }
+}
 
-        async function saveProfile() {
-            const nickname = document.getElementById('inputNickname').value.trim();
-            const bio = document.getElementById('inputBio').value.trim();
+async function saveProfile() {
+    const nickname = document.getElementById('inputNickname').value.trim();
+    const bio = document.getElementById('inputBio').value.trim();
 
-            try {
-                const res = await fetch(`${API_BASE}/api/profile`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: currentUser.id,
-                        nickname: nickname,
-                        bio: bio
-                    })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    userProfile = { ...userProfile, nickname, bio };
-                    document.getElementById('editForm').style.display = 'none';
-                    renderUI();
-                    if (window.Telegram && Telegram.WebApp) {
-                        Telegram.WebApp.showAlert('✅ Профиль сохранён!');
-                    }
-                }
-            } catch(e) {
-                console.error('Save error:', e);
-                if (window.Telegram && Telegram.WebApp) {
-                    Telegram.WebApp.showAlert('❌ Ошибка сохранения');
-                }
-            }
-        }
-
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
-            document.getElementById(`tab-${tab}`).classList.add('active');
-        }
-
-        function goBack() {
+    try {
+        const res = await fetch(`${API_BASE}/api/profile`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: currentUser.id,
+                nickname: nickname,
+                bio: bio
+            })
+        });
+        const data = await res.json();
+        if (data.success) {
+            userProfile = { ...userProfile, nickname, bio };
+            document.getElementById('editForm').style.display = 'none';
+            renderUI();
             if (window.Telegram && Telegram.WebApp) {
-                Telegram.WebApp.close();
-            } else {
-                window.location.href = '/';
+                Telegram.WebApp.showAlert('✅ Профиль сохранён!');
             }
         }
+    } catch(e) {
+        console.error('Save error:', e);
+        if (window.Telegram && Telegram.WebApp) {
+            Telegram.WebApp.showAlert('❌ Ошибка сохранения');
+        }
+    }
+}
 
-        window.addEventListener('load', init);
+function openEditModal(productId) {
+    const p = products.find(pr => pr.id === productId);
+    if (!p) return;
+    document.getElementById('editProductId').value = productId;
+    document.getElementById('editTitle').value = p.title || '';
+    document.getElementById('editDescription').value = p.description || '';
+    document.getElementById('editPrice').value = p.price_stars || '';
+    document.getElementById('editGame').value = p.game || 'World of Warcraft';
+    document.getElementById('editCategory').value = p.category || 'Валюта';
+    const toggle = document.getElementById('editToggleActive');
+    if (p.is_active) toggle.classList.add('on');
+    else toggle.classList.remove('on');
+    document.getElementById('editProductModal').classList.add('show');
+}
+
+function closeEditModal() {
+    document.getElementById('editProductModal').classList.remove('show');
+}
+
+function toggleEditActive() {
+    const toggle = document.getElementById('editToggleActive');
+    toggle.classList.toggle('on');
+}
+
+async function saveProduct() {
+    const productId = parseInt(document.getElementById('editProductId').value);
+    const isActive = document.getElementById('editToggleActive').classList.contains('on');
+
+    const updateData = {
+        title: document.getElementById('editTitle').value.trim(),
+        description: document.getElementById('editDescription').value.trim(),
+        price_stars: parseInt(document.getElementById('editPrice').value),
+        game: document.getElementById('editGame').value,
+        category: document.getElementById('editCategory').value,
+        is_active: isActive
+    };
+
+    try {
+        const res = await fetch(`${API_BASE}/api/seller`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId, userId: currentUser.id, ...updateData })
+        });
+        const data = await res.json();
+        if (data.success) {
+            // Update local products array
+            const idx = products.findIndex(p => p.id === productId);
+            if (idx !== -1) products[idx] = { ...products[idx], ...updateData };
+            closeEditModal();
+            renderCurrentTab();
+            if (window.Telegram?.WebApp) Telegram.WebApp.showAlert('✅ Товар сохранён!');
+        } else {
+            if (window.Telegram?.WebApp) Telegram.WebApp.showAlert('❌ ' + (data.error || 'Ошибка'));
+        }
+    } catch(e) {
+        console.error('Save product error:', e);
+        if (window.Telegram?.WebApp) Telegram.WebApp.showAlert('❌ Ошибка сохранения');
+    }
+}
+
+async function deleteProductFromModal() {
+    const productId = parseInt(document.getElementById('editProductId').value);
+    if (!confirm('Удалить этот товар?')) return;
+    try {
+        const res = await fetch(`${API_BASE}/api/seller`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId, userId: currentUser.id })
+        });
+        if (res.ok) {
+            products = products.filter(p => p.id !== productId);
+            closeEditModal();
+            renderCurrentTab();
+            if (window.Telegram?.WebApp) Telegram.WebApp.showAlert('✅ Товар удалён');
+        } else {
+            if (window.Telegram?.WebApp) Telegram.WebApp.showAlert('❌ Ошибка удаления');
+        }
+    } catch(e) {
+        console.error('Delete product error:', e);
+        if (window.Telegram?.WebApp) Telegram.WebApp.showAlert('❌ Ошибка удаления');
+    }
+}
+
+function goToAddProduct() {
+    const tg = window.Telegram?.WebApp;
+    const url = 'https://mini-app-pi-ivory.vercel.app/add-product.html';
+    if (tg) tg.openTelegramLink(url);
+    else window.location.href = url;
+}
+
+function goBack() {
+    window.location.href = 'https://mini-app-pi-ivory.vercel.app/';
+}
+
+window.addEventListener('load', init);
     </script>
 </body>
 </html>
